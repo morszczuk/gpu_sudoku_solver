@@ -84,7 +84,7 @@ cudaError_t solveSudoku(int** h_sudoku_quiz)
 
 int main()
 {
-	char filename[] = "arr_1_solved.txt";
+	char filename[] = "quizzes/arr_1_solved.txt";
 	int ** h_sudoku_quiz;
 	
 	//RETRIEVING SUDOKU QUIZ
