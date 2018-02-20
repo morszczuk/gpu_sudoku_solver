@@ -95,11 +95,11 @@ int main()
 	clock_t begin = clock();
 	
 	//SOLVING SUDOKU 
-	// cudaError_t cudaStatus = solveSudoku(h_sudoku_quiz);
-	// if (cudaStatus != cudaSuccess) {
-	// 	fprintf(stderr, "solveSudoku failed!");
-	// 	return 1;
-	// }
+	cudaError_t cudaStatus = solveSudoku(h_sudoku_quiz);
+	if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "solveSudoku failed!");
+		return 1;
+	}
 
 	//ENDING TIME MEASURMENT
 	clock_t end = clock();
@@ -109,11 +109,11 @@ int main()
 	getchar();
 
 	// RESETING CUDA DEVICE
-	// cudaStatus = cudaDeviceReset();
-	// if (cudaStatus != cudaSuccess) {
-	// 	fprintf(stderr, "cudaDeviceReset failed!");
-	// 	return 1;
-	// }
+	cudaStatus = cudaDeviceReset();
+	if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "cudaDeviceReset failed!");
+		return 1;
+	}
 
 	return 0;
 }
