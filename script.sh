@@ -1,1 +1,1 @@
-nvcc --cuda kernel.cu
+nvcc kernel.cu
