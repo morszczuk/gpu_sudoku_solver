@@ -96,10 +96,10 @@ int main()
 	
 	//SOLVING SUDOKU 
 	// cudaError_t cudaStatus = solveSudoku(h_sudoku_quiz);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "solveSudoku failed!");
-		return 1;
-	}
+	// if (cudaStatus != cudaSuccess) {
+	// 	fprintf(stderr, "solveSudoku failed!");
+	// 	return 1;
+	// }
 
 	//ENDING TIME MEASURMENT
 	clock_t end = clock();
