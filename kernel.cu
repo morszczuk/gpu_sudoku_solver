@@ -10,13 +10,13 @@
 #define SUD_SIZE 9
 
 //reading sudoku quiz from a file
-int** readSudokuArray(char* filename)
+int* readSudokuArray(char* filename)
 {
-	int** h_sudoku = new int*[SUD_SIZE];
+	int* h_sudoku = new int[SUD_SIZE*SUD_SIZE];
 
-	for (int i = 0; i < SUD_SIZE; i++) {
-		h_sudoku[i] = new int[SUD_SIZE];
-	}
+	// for (int i = 0; i < SUD_SIZE; i++) {
+	// 	h_sudoku[i] = new int[SUD_SIZE];
+	// }
 
 	//printf("SUDOKU FILENAME: %s\n", filename);
 	std::ifstream sudoku_file(filename);
@@ -26,15 +26,15 @@ int** readSudokuArray(char* filename)
 
 	while (sudoku_file >> a0 >> a1 >> a2 >> a3 >> a4 >> a5 >> a6 >> a7 >> a8)
 	{
-		h_sudoku[i][0] = a0;
-		h_sudoku[i][1] = a1;
-		h_sudoku[i][2] = a2;
-		h_sudoku[i][3] = a3;
-		h_sudoku[i][4] = a4;
-		h_sudoku[i][5] = a5;
-		h_sudoku[i][6] = a6;
-		h_sudoku[i][7] = a7;
-		h_sudoku[i][8] = a8;
+		h_sudoku[i + 0] = a0;
+		h_sudoku[i + 1] = a1;
+		h_sudoku[i + 2] = a2;
+		h_sudoku[i + 3] = a3;
+		h_sudoku[i + 4] = a4;
+		h_sudoku[i + 5] = a5;
+		h_sudoku[i + 6] = a6;
+		h_sudoku[i + 7] = a7;
+		h_sudoku[i + 8] = a8;
 		i++;
 	}
 
@@ -42,12 +42,12 @@ int** readSudokuArray(char* filename)
 }
 
 //printing Array in sudoku-style.
-void printArray(int** array, int N, int M)
+void printArray(int* array, int N, int M)
 {
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < M; j++)
-			printf("%d |", array[i][j]);
+			printf("%d |", array[i/N + j]);
 		
 		printf("\n");
 
@@ -85,7 +85,7 @@ cudaError_t solveSudoku(int** h_sudoku_quiz)
 int main()
 {
 	char filename[] = "quizzes/arr_1_solved.txt";
-	int ** h_sudoku_quiz;
+	int * h_sudoku_quiz;
 	
 	//RETRIEVING SUDOKU QUIZ
 	h_sudoku_quiz = readSudokuArray(filename);
