@@ -66,7 +66,7 @@ __global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
 	//] = d_quiz[idx][idy] > 0 ? 1 : 0;
 }
 
-cudaError_t solveSudoku(int** h_sudoku_quiz)
+cudaError_t solveSudoku(int* h_sudoku_quiz)
 {
 	int *d_sudoku_quiz, *d_quiz_fill;
 
@@ -95,7 +95,7 @@ int main()
 	clock_t begin = clock();
 	
 	//SOLVING SUDOKU 
-	cudaError_t cudaStatus = solveSudoku(h_sudoku_quiz);
+	// cudaError_t cudaStatus = solveSudoku(h_sudoku_quiz);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "solveSudoku failed!");
 		return 1;
