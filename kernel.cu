@@ -63,13 +63,12 @@ __global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
 
-	] = d_quiz[idx][idy] > 0 ? 1 : 0;
+	//] = d_quiz[idx][idy] > 0 ? 1 : 0;
 }
 
 cudaError_t solveSudoku(int** h_sudoku_quiz)
 {
 	int *d_sudoku_quiz, *d_quiz_fill;
-	int *
 
 	cudaMalloc((void **)&d_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int));
 	cudaMalloc((void **)&d_quiz_fill, SUD_SIZE * SUD_SIZE * sizeof(int));
