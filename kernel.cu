@@ -64,7 +64,7 @@ __global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
 
 __global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
 {
-	printf("a tutaj?\n");
+	fprintf(stdout, "madafaka3\n");
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
@@ -91,6 +91,7 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 	sharedMemorySize = 243 * sizeof(int);
 	fprintf(stdout, "madafaka3\n");
 	checkCorrectness <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku_quiz, d_number_presence);
+	cudaDeviceSynchronize()
 	//int h_sudoku_quiz[SUD_SIZE][SUD_SIZE];
 
 	//for(int i = 0; i < SUD_SIZE; i++)
