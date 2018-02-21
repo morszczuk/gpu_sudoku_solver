@@ -91,7 +91,7 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 	sharedMemorySize = 243 * sizeof(int);
 	fprintf(stdout, "madafaka3\n");
 	checkCorrectness <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku_quiz, d_number_presence);
-	cudaDeviceSynchronize()
+	cudaDeviceSynchronize();
 	//int h_sudoku_quiz[SUD_SIZE][SUD_SIZE];
 
 	//for(int i = 0; i < SUD_SIZE; i++)
