@@ -69,6 +69,7 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 	checkCorrectness <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku_quiz, d_number_presence);
 	cudaErrorHandling(cudaDeviceSynchronize());
 	cudaErrorHandling(cudaMemcpy(h_number_presence, d_number_presence, 243 * sizeof(int), cudaMemcpyDeviceToHost));
+	cudaErrorHandling(cudaDeviceSynchronize());
 	
 	for (int i = 0; i <27; i++)
 	{
