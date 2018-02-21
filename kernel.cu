@@ -103,8 +103,8 @@ __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 
 	if (d_sudoku[idx*SUD_SIZE + idy])
 	{
-		number_presence[idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, is number in data[idx][idy] - 1 is present in row idx
-		number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs, is number in data[idx][idy] - 1 is present in column idy
+		number_presence[idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs about number data[idx][idy] - 1 presence in row idx
+		number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
 		number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
 	}
 
@@ -148,18 +148,29 @@ bool checkIfSudokuIsSolved(int* d_sudoku)
 	return isSudokuSolved;
 }
 
-
-
-cudaError_t solveSudoku(int* h_sudoku_quiz)
+cudaError_t solveSudoku(int* h_sudoku_quiz_solved, int* h_sudoku_quiz_unsolved)
 {
-	int *d_sudoku_quiz, *d_quiz_fill;	
+	int *d_sudoku_quiz_unsolved, *d_sudoku_quiz_solved, *d_quiz_fill;	
+	int i = 0;
 
-	cudaErrorHandling(cudaMalloc((void **)&d_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int)));
-	cudaErrorHandling(cudaMalloc((void **)&d_quiz_fill, SUD_SIZE * SUD_SIZE * sizeof(int)));
+	cudaErrorHandling(cudaMalloc((void **)&d_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int)));
+	cudaErrorHandling(cudaMalloc((void **)&d_quiz_solved, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
-	cudaErrorHandling(cudaMemcpy(d_sudoku_quiz, h_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+	cudaErrorHandling(cudaMemcpy(d_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+	cudaErrorHandling(cudaMemcpy(d_quiz_solved, h_sudoku_quiz_solved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+	
+	d_quiz_fill = d_sudoku_quiz;
+	while(!checkIfSudokuIsSolved(d_quiz_fill))
+	{
+		if( i > 5)
+			d_quiz_fill = d_quiz_solved;
+		else
+		{
+			cudaErrorHandling(cudaMemcpy(d_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+			d_quiz_fill = d_quiz_unsolved;
+		}
+	}
 
-	checkIfSudokuIsSolved(d_sudoku_quiz);
 
 	return cudaSuccess;
 }
