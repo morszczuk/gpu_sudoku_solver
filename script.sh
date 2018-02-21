@@ -1,1 +1,1 @@
-nvcc kernel.cu
+make && rm sudoku_solver && git add -A && git commit -m "work" && git push
