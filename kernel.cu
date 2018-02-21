@@ -148,6 +148,39 @@ bool checkIfSudokuIsSolved(int* d_sudoku)
 	return isSudokuSolved;
 }
 
+__global__ void __defineNumberPresenceInRow(int* d_quiz_unsolved, int* d_number_presence_in_row)
+{
+	int idx = blockDim.y*blockIdx.y + threadIdx.y;
+	int idy = blockDim.x*blockIdx.x + threadIdx.x;
+
+	if(d_quiz_unsolved[idx*SUD_SIZE + idy] > 0)
+	{
+		d_number_presence_in_row[idx * SUD_SIZE + d_quiz_unsolved[idx*SUD_SIZE + idy] - 1] = 1;
+	} else
+	{
+		d_number_presence_in_row[idx * SUD_SIZE + d_quiz_unsolved[idx*SUD_SIZE + idy] - 1] = 0;
+	}
+}
+
+int* defineNumberPresenceInRow(int* d_quiz_unsolved)
+{
+	int *d_number_presence_in_row;
+	dim3 dimBlock = dim3(9, 9, 1);
+	dim3 dimGrid = dim3(1);
+
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence_in_row, SUD_SIZE * SUD_SIZE * sizeof(int)));
+
+	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
+}
+
+int* createSolution(int* d_quiz_unsolved)
+{
+	int *d_number_presence_in_row;
+
+	d_number_presence_in_row = defineNumberPresenceInRow(d_quiz_unsolved);
+
+}
+
 cudaError_t solveSudoku(int* h_sudoku_quiz_solved, int* h_sudoku_quiz_unsolved)
 {
 	int *d_sudoku_quiz_unsolved, *d_sudoku_quiz_solved, *d_quiz_fill;	
