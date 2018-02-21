@@ -18,6 +18,8 @@ __global__ void addNumberPresenceArray(int* d_array, int size)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
+	printf("[IDX: %d]\n", idx);
+
 	for (int i = 1; i <= size / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
@@ -107,7 +109,7 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 	cudaErrorHandling(cudaDeviceSynchronize());
 	cudaErrorHandling(cudaMemcpy(result, d_number_presence, sizeof(int), cudaMemcpyDeviceToHost));
 	cudaErrorHandling(cudaDeviceSynchronize());
-	
+
 	printf("---------- FINAL RESULT!!! ------\n");
 	printf("WARTOSC: %d\n", result[0]);
 
