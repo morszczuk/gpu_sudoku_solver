@@ -153,21 +153,21 @@ cudaError_t solveSudoku(int* h_sudoku_quiz_solved, int* h_sudoku_quiz_unsolved)
 	int *d_sudoku_quiz_unsolved, *d_sudoku_quiz_solved, *d_quiz_fill;	
 	int i = 0;
 
-	cudaErrorHandling(cudaMalloc((void **)&d_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int)));
-	cudaErrorHandling(cudaMalloc((void **)&d_quiz_solved, SUD_SIZE * SUD_SIZE * sizeof(int)));
+	cudaErrorHandling(cudaMalloc((void **)&d_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int)));
+	cudaErrorHandling(cudaMalloc((void **)&d_sudoku_quiz_solved, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
-	cudaErrorHandling(cudaMemcpy(d_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
-	cudaErrorHandling(cudaMemcpy(d_quiz_solved, h_sudoku_quiz_solved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+	cudaErrorHandling(cudaMemcpy(d_sudoku_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+	cudaErrorHandling(cudaMemcpy(d_sudoku_quiz_solved, h_sudoku_quiz_solved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
 	
-	d_quiz_fill = d_sudoku_quiz;
+	d_quiz_fill = d_sudoku_quiz_unsolved;
 	while(!checkIfSudokuIsSolved(d_quiz_fill))
 	{
 		if( i > 5)
-			d_quiz_fill = d_quiz_solved;
+			d_quiz_fill = d_sudoku_quiz_solved;
 		else
 		{
-			cudaErrorHandling(cudaMemcpy(d_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
-			d_quiz_fill = d_quiz_unsolved;
+			cudaErrorHandling(cudaMemcpy(d_sudoku_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
+			d_quiz_fill = d_sudoku_quiz_unsolved;
 		}
 	}
 
