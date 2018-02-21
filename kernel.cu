@@ -201,6 +201,7 @@ cudaError_t solveSudoku(int* h_sudoku_quiz_solved, int* h_sudoku_quiz_unsolved)
 		{
 			cudaErrorHandling(cudaMemcpy(d_sudoku_quiz_unsolved, h_sudoku_quiz_unsolved, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
 			d_quiz_fill = d_sudoku_quiz_unsolved;
+			createSolution(d_sudoku_quiz_unsolved);
 		}
 		i++;
 	}
