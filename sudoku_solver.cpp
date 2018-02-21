@@ -10,12 +10,12 @@ int main(int argc, char* argv[])
 	
 	//RETRIEVING SUDOKU QUIZ
   if(argc > 1)
-	  h_sudoku_quiz = readSudokuArray(filename_unsolved);
-  else
     if(argc > 2)
       h_sudoku_quiz = readSudokuArray(filename_error);
     else
-      h_sudoku_quiz = readSudokuArray(filename_solved);
+	    h_sudoku_quiz = readSudokuArray(filename_unsolved);
+  else
+    h_sudoku_quiz = readSudokuArray(filename_solved);
 	
   printArray(h_sudoku_quiz, SUD_SIZE, SUD_SIZE);
 
