@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
   
     h_sudoku_solved = readSudokuArray(filename_solved);
 	
-  printArray(h_sudoku_solved, SUD_SIZE, SUD_SIZE);
+  printArray(h_sudoku_unsolved, SUD_SIZE, SUD_SIZE);
 
 	//STARTING TIME MEASURMENT
 	clock_t begin = clock();
