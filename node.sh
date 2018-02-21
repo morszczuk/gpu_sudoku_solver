@@ -1,0 +1,1 @@
+git pull && rm sudoku_solver && make && ./sudoku_solver
