@@ -19,7 +19,18 @@ __global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
-	printf("[idx: %d | idx: %d ]\n", idx, idy);
+	int index_1, index_2, index_3;
+	int k = 81;
+
+	number_presence[idx * 9 + idy] = 0;
+	number_presence[k + idx * 9 + idy] = 0;
+	number_presence[(2*k) + (idx * 9 + idy)] = 0;
+
+	index_1 = idx * 9 + d_sudoku[idx/SUD_SIZE + idy] - 1;
+	index_2 = k + idy * 9 + d_sudoku[idx/SUD_SIZE + idy] - 1;
+	index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx/SUD_SIZE + idy] - 1;
+
+	printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx/SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 }
 
 cudaError_t solveSudoku(int* h_sudoku_quiz)
