@@ -80,6 +80,24 @@ void displayNumberPresenceArray(int* d_number_presence)
 	printf("-----------------------------------------\n");
 }
 
+void displaySudokuArray(int* d_number_presence)
+{
+	int* h_number_presence = new int[81];
+
+	cudaErrorHandling(cudaMemcpy(h_number_presence, d_number_presence, 81 * sizeof(int), cudaMemcpyDeviceToHost));
+
+	printf("---------NUMBER PRESENCE IN ROW-----------\n");
+	for (int i = 0; i < 9; i++)
+	{
+		for(int j = 0; j < 9; j++)
+		{
+			printf("%d |", h_number_presence[i*9 + j]);
+		}
+		printf("\n");
+	}
+	printf("-----------------------------------------\n");
+}
+
 
 __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 {
@@ -171,6 +189,8 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 	cudaErrorHandling(cudaMalloc((void **)&d_number_presence_in_row, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
 	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
+	cudaErrorHandling(cudaDeviceSynchronize());
+	displaySudokuArray(d_number_presence_in_row);
 }
 
 int* createSolution(int* d_quiz_unsolved)
