@@ -35,6 +35,7 @@ __global__ void addNumberPresenceArray(int* d_array, int size)
 		}
 		__syncthreads();
 	}
+	printf("JESTEM NA KOŃCU");
 }
 
 __global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
