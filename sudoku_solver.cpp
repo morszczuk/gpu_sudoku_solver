@@ -2,7 +2,7 @@
 
 int main()
 {
-	char filename[] = "quizzes/arr_1_solved.txt";
+	char filename[] = "quizzes/arr_1_unsolved.txt";
 	int * h_sudoku_quiz;
 	int a =5;
 	

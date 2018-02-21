@@ -124,11 +124,4 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 		printf("Sudoku nie jest rozwiązane! :( ");
 	}
 	
-
-
-	//int h_sudoku_quiz[SUD_SIZE][SUD_SIZE];
-
-	//for(int i = 0; i < SUD_SIZE; i++)
-	//	for (int j = 0; j < SUD_SIZE; j++)
-	//		h_sudoku_quiz[i][j] = _sudoku_quiz[i][j];
 }
