@@ -19,6 +19,7 @@ __global__ void addNumberPresenceArray(int* d_array, int size)
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
 	printf("[IDX: %d]\n", idx);
+	__syncthreads();
 
 	for (int i = 1; i <= size / 2; i *= 2)
 	{
