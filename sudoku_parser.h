@@ -5,6 +5,8 @@
 #include <sstream>
 #include <time.h>
 
+#include "constants.h"
+
 int* readSudokuArray(char* filename);
 
 //printing Array in sudoku-style.

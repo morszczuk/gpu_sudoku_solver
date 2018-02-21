@@ -5,4 +5,7 @@
 #include <sstream>
 #include <time.h>
 
-#define SUD_SIZE 9
+#include "sudoku_parser.h"
+#include "kernel.h"
+
+int main();

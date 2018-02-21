@@ -1,5 +1,4 @@
 #include "sudoku_parser.h"
-#include "constants.h"
 
 int* readSudokuArray(char* filename)
 {
