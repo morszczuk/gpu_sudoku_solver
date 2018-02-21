@@ -106,7 +106,7 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 
 	dim3 dimBlock2 = dim3(243, 1, 1);
 	dim3 dimGrid2 = dim3(1);
-	addNumberPresenceArray <<<dimGrid2, dimGrid2>>> (d_number_presence, 243);
+	addNumberPresenceArray <<<dimGrid2, dimBlock2>>> (d_number_presence, 243);
 	cudaErrorHandling(cudaDeviceSynchronize());
 	cudaErrorHandling(cudaMemcpy(result, d_number_presence, sizeof(int), cudaMemcpyDeviceToHost));
 	cudaErrorHandling(cudaDeviceSynchronize());
