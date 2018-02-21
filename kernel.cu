@@ -93,9 +93,9 @@ __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 	number_presence[k + idx * SUD_SIZE + idy] = 0;
 	number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
 
-	index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
 
 	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 
