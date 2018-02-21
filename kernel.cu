@@ -6,15 +6,27 @@ void cudaErrorHandling(cudaError_t cudaStatus) {
 	}
 }
 
-__global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
+bool defineIfSudokuIsSolved(int* d_number_presence_summed)
 {
-	int idx = blockDim.y*blockIdx.y + threadIdx.y;
-	int idy = blockDim.x*blockIdx.x + threadIdx.x;
+	int* result = new int[1];
 
-	//] = d_quiz[idx][idy] > 0 ? 1 : 0;
+	cudaErrorHandling(cudaMemcpy(result, d_number_presence_summed, sizeof(int), cudaMemcpyDeviceToHost));
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	printf("---------- FINAL RESULT!!! ------\n");
+	printf("SUMA: %d\n", result[0]);
+	if(result[0] == 243)
+	{
+		printf("Sudoku jest rozwiązane!\n");
+		return true;
+	} else
+	{
+		printf("Sudoku nie jest rozwiązane! :( \n");
+		return false;
+	}
 }
 
-__global__ void addNumberPresenceArray(int* d_array, int size)
+__global__ void __sumNumberPresenceArray(int* d_number_presence, int size)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
@@ -24,9 +36,9 @@ __global__ void addNumberPresenceArray(int* d_array, int size)
 	for (int i = 1; i <= size / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
-			printf("BEFORE [Thread %d]: %d\n", idx, d_array[idx]);
-			d_array[idx] += d_array[idx + i];
-			printf("AFTER [Thread %d]: %d\n", idx, d_array[idx]);
+			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			d_number_presence[idx] += d_number_presence[idx + i];
+			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
 		}
 		else
 		{
@@ -37,10 +49,39 @@ __global__ void addNumberPresenceArray(int* d_array, int size)
 	}
 
 	if(idx == 0)
-		d_array[idx] += d_array[idx + 128];
+		d_number_presence[idx] += d_number_presence[idx + 128];
 }
 
-__global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
+void sumNumberPresenceArray(int* d_number_presence)
+{
+	dim3 dimBlock2 = dim3(243, 1, 1);
+	dim3 dimGrid2 = dim3(1);
+
+	__sumNumberPresenceArray <<<dimGrid2, dimBlock2>>> (d_number_presence, 243);
+	cudaErrorHandling(cudaDeviceSynchronize());
+}
+
+
+void displayNumberPresenceArray(int* d_number_presence)
+{
+	int* h_number_presence = new int[243];
+
+	cudaErrorHandling(cudaMemcpy(h_number_presence, d_number_presence, 243 * sizeof(int), cudaMemcpyDeviceToHost));
+
+	printf("---------NUMBER PRESENCE ARRAY-----------");
+	for (int i = 0; i < 27; i++)
+	{
+		for(int j = 0; j < 9; j++)
+		{
+			printf("%d |", h_number_presence[i*9 + j]);
+		}
+		printf("\n");
+	}
+	printf("-----------------------------------------");
+}
+
+
+__global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 {
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
@@ -76,52 +117,49 @@ __global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
 	__syncthreads();
 }
 
+int* fillNumberPresenceArray(int* d_sudoku) 
+{
+	int* d_number_presence;
+	int sharedMemorySize = 243 * sizeof(int);
+	dim3 dimBlock = dim3(9, 9, 1);
+	dim3 dimGrid = dim3(1);
+
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence, 243 * sizeof(int)));
+
+	__fillNumberPresenceArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence);
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	displayNumberPresenceArray(d_number_presence);
+
+	return d_number_presence;
+}
+
+bool checkIfSudokuIsSolved(int* d_sudoku)
+{
+	int* d_number_presence;
+	bool isSudokuSolved;
+
+	d_number_presence = fillNumberPresenceArray(d_sudoku);
+
+	sumNumberPresenceArray(d_number_presence);
+
+	isSudokuSolved = defineIfSudokuIsSolved(d_number_presence);
+
+	return isSudokuSolved;
+}
+
+
+
 cudaError_t solveSudoku(int* h_sudoku_quiz)
 {
-	int *d_sudoku_quiz, *d_quiz_fill, *d_number_presence;
-	int sharedMemorySize;
-	int* h_number_presence = new int[243];
-	int* result = new int[1];
+	int *d_sudoku_quiz, *d_quiz_fill;	
 
 	cudaErrorHandling(cudaMalloc((void **)&d_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int)));
 	cudaErrorHandling(cudaMalloc((void **)&d_quiz_fill, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
 	cudaErrorHandling(cudaMemcpy(d_sudoku_quiz, h_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
 
-	cudaErrorHandling(cudaMalloc((void **)&d_number_presence, 243 * sizeof(int)));
+	checkIfSudokuIsSolved(d_sudoku_quiz);
 
-	dim3 dimBlock = dim3(9, 9, 1);
-	dim3 dimGrid = dim3(1);
-	sharedMemorySize = 243 * sizeof(int);
-	checkCorrectness <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku_quiz, d_number_presence);
-	cudaErrorHandling(cudaDeviceSynchronize());
-	cudaErrorHandling(cudaMemcpy(h_number_presence, d_number_presence, 243 * sizeof(int), cudaMemcpyDeviceToHost));
-	cudaErrorHandling(cudaDeviceSynchronize());
-
-	for (int i = 0; i <27; i++)
-	{
-		for(int j = 0; j < 9; j++)
-		{
-			printf("%d |", h_number_presence[i*9 + j]);
-		}
-		printf("\n");
-	}
-
-	dim3 dimBlock2 = dim3(243, 1, 1);
-	dim3 dimGrid2 = dim3(1);
-	addNumberPresenceArray <<<dimGrid2, dimBlock2>>> (d_number_presence, 243);
-	cudaErrorHandling(cudaDeviceSynchronize());
-	cudaErrorHandling(cudaMemcpy(result, d_number_presence, sizeof(int), cudaMemcpyDeviceToHost));
-	cudaErrorHandling(cudaDeviceSynchronize());
-
-	printf("---------- FINAL RESULT!!! ------\n");
-	printf("SUMA: %d\n", result[0]);
-	if(result[0] == 243)
-	{
-		printf("Sudoku jest rozwiązane!");
-	} else
-	{
-		printf("Sudoku nie jest rozwiązane! :( ");
-	}
-	
+	return cudaSuccess;
 }
