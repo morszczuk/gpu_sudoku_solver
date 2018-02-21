@@ -68,7 +68,7 @@ void displayNumberPresenceArray(int* d_number_presence)
 
 	cudaErrorHandling(cudaMemcpy(h_number_presence, d_number_presence, 243 * sizeof(int), cudaMemcpyDeviceToHost));
 
-	printf("---------NUMBER PRESENCE ARRAY-----------");
+	printf("---------NUMBER PRESENCE ARRAY-----------\n");
 	for (int i = 0; i < 27; i++)
 	{
 		for(int j = 0; j < 9; j++)
@@ -77,7 +77,7 @@ void displayNumberPresenceArray(int* d_number_presence)
 		}
 		printf("\n");
 	}
-	printf("-----------------------------------------");
+	printf("-----------------------------------------\n");
 }
 
 

@@ -30,6 +30,7 @@ int* readSudokuArray(char* filename)
 //printing Array in sudoku-style.
 void printArray(int* array, int N, int M)
 {
+  printf("---------QUIZ ARRAY-----------\n");
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < M; j++)
@@ -42,4 +43,5 @@ void printArray(int* array, int N, int M)
 		
 		printf("\n");
 	}
+  printf("------------------------------\n");
 }
