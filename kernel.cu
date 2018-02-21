@@ -86,7 +86,7 @@ __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
-	int index_1, index_2, index_3;
+	// int index_1, index_2, index_3;
 	int k = SUD_SIZE*SUD_SIZE;
 
 	number_presence[idx * SUD_SIZE + idy] = 0;
