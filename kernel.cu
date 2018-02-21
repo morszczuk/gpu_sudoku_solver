@@ -83,7 +83,7 @@ int main()
 	getchar();
 
 	// RESETING CUDA DEVICE
-	cudaErrorHandling(cudaStatus = cudaDeviceReset());
+	cudaErrorHandling(cudaDeviceReset());
 	// if (cudaStatus != cudaSuccess) {
 	// 	fprintf(stderr, "cudaDeviceReset failed!");
 	// 	return 1;
