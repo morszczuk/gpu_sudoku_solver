@@ -35,6 +35,7 @@ __global__ void addNumberPresenceArray(int* d_array, int size)
 		}
 		__syncthreads();
 	}
+
 	if(idx == 0)
 		d_array[idx] += d_array[idx + 128];
 }
@@ -114,7 +115,15 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 	cudaErrorHandling(cudaDeviceSynchronize());
 
 	printf("---------- FINAL RESULT!!! ------\n");
-	printf("WARTOSC: %d\n", result[0]);
+	printf("SUMA: %d\n", result[0]);
+	if(result[0] == 243)
+	{
+		printf("Sudoku jest rozwiązane!");
+	} else
+	{
+		printf("Sudoku nie jest rozwiązane! :( ");
+	}
+	
 
 
 	//int h_sudoku_quiz[SUD_SIZE][SUD_SIZE];
