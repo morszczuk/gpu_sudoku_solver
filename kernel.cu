@@ -9,50 +9,11 @@
 #include "constants.h"
 #include "sudoku_parser.h"
 
-//reading sudoku quiz from a file
-// int* readSudokuArray(char* filename)
-// {
-// 	int* h_sudoku = new int[SUD_SIZE*SUD_SIZE];
-
-// 	//printf("SUDOKU FILENAME: %s\n", filename);
-// 	std::ifstream sudoku_file(filename);
-
-// 	int a0, a1, a2, a3, a4, a5, a6, a7, a8;
-// 	int i = 0;
-
-// 	while (sudoku_file >> a0 >> a1 >> a2 >> a3 >> a4 >> a5 >> a6 >> a7 >> a8)
-// 	{
-// 		h_sudoku[i + 0] = a0;
-// 		h_sudoku[i + 1] = a1;
-// 		h_sudoku[i + 2] = a2;
-// 		h_sudoku[i + 3] = a3;
-// 		h_sudoku[i + 4] = a4;
-// 		h_sudoku[i + 5] = a5;
-// 		h_sudoku[i + 6] = a6;
-// 		h_sudoku[i + 7] = a7;
-// 		h_sudoku[i + 8] = a8;
-// 		i++;
-// 	}
-
-// 	return h_sudoku;
-// }
-
-// //printing Array in sudoku-style.
-// void printArray(int* array, int N, int M)
-// {
-// 	for (int i = 0; i < N; i++)
-// 	{
-// 		for (int j = 0; j < M; j++)
-// 			printf("%d |", array[i/N + j]);
-		
-// 		printf("\n");
-
-// 		for (int j = 0; j < N; j++)
-// 			printf("- |");
-		
-// 		printf("\n");
-// 	}
-// }
+void cudaErrorHandling(cudaError_t cudaStatus) {
+	if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "Error on CUDA %d: %s\n", cudaStatus, cudaGetErrorString(cudaStatus));
+	}
+}
 
 __global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
 {
@@ -74,18 +35,18 @@ cudaError_t solveSudoku(int* h_sudoku_quiz)
 {
 	int *d_sudoku_quiz, *d_quiz_fill, *d_number_presence;
 	int sharedMemorySize;
-	cudaMalloc((void **)&d_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int));
-	cudaMalloc((void **)&d_quiz_fill, SUD_SIZE * SUD_SIZE * sizeof(int));
+	cudaErrorHandling(cudaMalloc((void **)&d_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int)));
+	cudaErrorHandling(cudaMalloc((void **)&d_quiz_fill, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
-	cudaMemcpy(d_sudoku_quiz, h_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice);
+	cudaErrorHandling(cudaMemcpy(d_sudoku_quiz, h_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice));
 
-	cudaMalloc((void **)&d_number_presence, 243 * sizeof(int));
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence, 243 * sizeof(int)));
 
 	dim3 dimBlock = dim3(9, 9, 1);
 	dim3 dimGrid = dim3(1);
 	sharedMemorySize = 243 * sizeof(int);
 	checkCorrectness <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku_quiz, d_number_presence);
-	cudaDeviceSynchronize();
+	cudaErrorHandling(cudaDeviceSynchronize());
 	//int h_sudoku_quiz[SUD_SIZE][SUD_SIZE];
 
 	//for(int i = 0; i < SUD_SIZE; i++)
@@ -107,12 +68,12 @@ int main()
 	clock_t begin = clock();
 	
 	//SOLVING SUDOKU 
-	cudaError_t cudaStatus = solveSudoku(h_sudoku_quiz);
-	if (cudaStatus != cudaSuccess) {
-		printf("fds");
-		fprintf(stderr, "solveSudoku failed!");
-		return 1;
-	}
+	cudaErrorHandling(solveSudoku(h_sudoku_quiz));
+	// if (cudaStatus != cudaSuccess) {
+	// 	printf("fds");
+	// 	fprintf(stderr, "solveSudoku failed!");
+	// 	return 1;
+	// }
 
 	//ENDING TIME MEASURMENT
 	clock_t end = clock();
@@ -122,11 +83,11 @@ int main()
 	getchar();
 
 	// RESETING CUDA DEVICE
-	cudaStatus = cudaDeviceReset();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaDeviceReset failed!");
-		return 1;
-	}
+	cudaErrorHandling(cudaStatus = cudaDeviceReset());
+	// if (cudaStatus != cudaSuccess) {
+	// 	fprintf(stderr, "cudaDeviceReset failed!");
+	// 	return 1;
+	// }
 
 	return 0;
 }
