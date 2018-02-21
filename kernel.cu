@@ -30,19 +30,19 @@ __global__ void __sumNumberPresenceArray(int* d_number_presence, int size)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
-	printf("[IDX: %d]\n", idx);
+	// printf("[IDX: %d]\n", idx);
 	__syncthreads();
 
 	for (int i = 1; i <= size / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
-			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
 			d_number_presence[idx] += d_number_presence[idx + i];
-			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
 		}
 		else
 		{
-			printf("[Thread %d] returning\n", idx);
+			// printf("[Thread %d] returning\n", idx);
 			return;
 		}
 		__syncthreads();
@@ -97,7 +97,7 @@ __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 	index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
 	index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
 
-	printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
+	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 
 	__syncthreads();
 
