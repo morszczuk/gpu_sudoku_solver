@@ -64,7 +64,7 @@ __global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
 
 __global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
 {
-	fprintf(stdout, "madafaka3\n");
+	printf("a TUTAJ?\n");
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
