@@ -64,32 +64,26 @@ __global__ void checkQuizFill(int d_quiz[SUD_SIZE][SUD_SIZE], int d_fill)
 
 __global__ void checkCorrectness(int* d_sudoku, int* d_number_presence)
 {
-	printf("a TUTAJ?\n");
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
-	printf("idx: %d", idx);
-	printf("idy: %d", idy);
+	printf("[idx: %d | idx: %d ]\n", idx, idy);
 }
 
 cudaError_t solveSudoku(int* h_sudoku_quiz)
 {
 	int *d_sudoku_quiz, *d_quiz_fill, *d_number_presence;
 	int sharedMemorySize;
-	int f;
-	printf("madafaka\n");
 	cudaMalloc((void **)&d_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int));
 	cudaMalloc((void **)&d_quiz_fill, SUD_SIZE * SUD_SIZE * sizeof(int));
 
 	cudaMemcpy(d_sudoku_quiz, h_sudoku_quiz, SUD_SIZE * SUD_SIZE * sizeof(int), cudaMemcpyHostToDevice);
 
 	cudaMalloc((void **)&d_number_presence, 243 * sizeof(int));
-	printf("madafaka2\n");
 
 	dim3 dimBlock = dim3(9, 9, 1);
 	dim3 dimGrid = dim3(1);
 	sharedMemorySize = 243 * sizeof(int);
-	fprintf(stdout, "madafaka3\n");
 	checkCorrectness <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku_quiz, d_number_presence);
 	cudaDeviceSynchronize();
 	//int h_sudoku_quiz[SUD_SIZE][SUD_SIZE];
