@@ -16,7 +16,7 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
 
 	printf("---\ntemp[2*%d] = %d\ntemp[2*%d] =%d\n", thid, temp[2*thid], thid, temp[2*thid+1]);
   temp[2*thid] = g_idata[2*thid]; // load input into shared memory
-  if(thid < 5)
+  if(thid < 4)
 	{
 		printf("2*thid %d\n", thid);
 		temp[2*thid+1] = g_idata[2*thid+1];
