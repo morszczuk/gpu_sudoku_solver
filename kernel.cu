@@ -5,25 +5,30 @@ void cudaErrorHandling(cudaError_t cudaStatus) {
 		fprintf(stderr, "Error on CUDA %d: %s\n", cudaStatus, cudaGetErrorString(cudaStatus));
 	}
 }
+	
+__global__ void __numberMapping(int* d_number_mapping, int* d_number_presence_in_row, int* d_scanned_number_presence_in_row)
+{
+	int idy = blockDim.y*blockIdx.y + threadIdx.y;
+	int idx = blockDim.x*blockIdx.x + threadIdx.x;
+
+	if(d_number_presence_in_row[idx*9 + idy] == 0)
+	{
+		d_number_mapping[idx*9+idy - d_scanned_number_presence_in_row[idx*9+idy]] = idy + d_scanned_number_presence_in_row[idx*9+idy];
+	}
+	__syncthreads();
+}
 
 __global__ void __scan(int *g_odata, int *g_idata, int n)
 {
   extern __shared__ int temp[]; // allocated on invocation
-  // int thid = threadIdx.x;
-	// int thid = blockDim.x*blockIdx.x + threadIdx.x;
 	int blockOffset = blockDim.y*blockIdx.y + threadIdx.y;
 	int thid = blockDim.x*blockIdx.x + threadIdx.x;
 
 	printf("THID: %d, blockOffset: %d\n", thid, blockOffset);
   
 	int pout = 0, pin = 1;
-  // load input into shared memory.
-  // This is exclusive scan, so shift right by one and set first elt to 0
-  // temp[pout*n + thid] = g_idata[thid];
 	temp[pout*81 + thid + blockOffset*9] = (thid > 0) ? g_idata[thid-1 + blockOffset*9] : 0;
-	// temp[pin*n + thid] = temp[pout*n + thid];
 	temp[pin*81 + thid + blockOffset*9] = 0;
-	// printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid + blockOffset*9]);
   
   __syncthreads();
 
@@ -41,7 +46,7 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
 
     __syncthreads();
 		//printf("THID: %d, OFFSET: %d, TEMP[%d]: %d\n", thid, offset, pout*n + thid, temp[pout*n + thid]);
-		__syncthreads();
+		// __syncthreads();
   }
 
 	if(thid > 0)
@@ -51,64 +56,6 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
 	if (thid == n -1 )
 		g_odata[thid+ blockOffset*9] = g_odata[thid-1+ blockOffset*9] + g_idata[thid+ blockOffset*9];
 		__syncthreads();
-} 
-
-
-__global__ void __prescan(int *g_odata, int *g_idata, int n)
-{
-  extern __shared__ int temp[];// allocated on invocation
-  int thid = threadIdx.x;
-  int offset = 1;
-	printf("THID: [%d]\n", thid);
-
-	// printf("---\ntemp[2*%d] = %d\ntemp[2*%d+1] =%d\n", thid, temp[2*thid], thid, temp[2*thid+1]);
-  temp[2*thid] = g_idata[2*thid]; // load input into shared memory
-  
-	if(thid < 4)
-	{
-		// printf("2*thid %d\n", thid);
-		temp[2*thid+1] = g_idata[2*thid+1];
-	}
-
-	__syncthreads();
-
-
-  for (int d = n>>1; d > 0; d >>= 1) // build sum in place up the tree
-  {
-    __syncthreads();
-    if (thid < d)
-    {
-      int ai = offset*(2*thid+1)-1;
-      int bi = offset*(2*thid+2)-1;
-      temp[bi] += temp[ai];
-    }
-    offset *= 2;
-  }
-
-
-  // if (thid == 0) { temp[n - 1] = 0; } // clear the last element
-
-
-  // for (int d = 1; d < n; d *= 2) // traverse down tree & build scan
-  // {
-  //   offset >>= 1;
-  //   __syncthreads();
-  //   if (thid < d)
-  //   {
-  //     int ai = offset*(2*thid+1)-1;
-  //     int bi = offset*(2*thid+2)-1;
-  //     int t = temp[ai];
-  //     temp[ai] = temp[bi];
-  //     temp[bi] += t;
-  //   }
-  // }
-
-
-  // __syncthreads();
-
-
-  // g_odata[2*thid] = temp[2*thid]; // write results to device memory
-  // g_odata[2*thid+1] = temp[2*thid+1];
 } 
 
 bool defineIfSudokuIsSolved(int* d_number_presence_summed)
@@ -308,18 +255,31 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 	dim3 dimGrid = dim3(1);
 	int sharedMemorySize = 18*9* sizeof(int);
 
-	printf("\n\n\nPRZED ALOKACJĄ\n\n\n");
-
 	cudaErrorHandling(cudaMalloc((void **)&d_scanned_number_presence_in_row, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
-	printf("\n\n\nPRZED SCANEM\n\n\n");
-	//__prescan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
 	__scan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
 	
 	cudaErrorHandling(cudaDeviceSynchronize());
 
 	displaySudokuArray(d_scanned_number_presence_in_row);
+
 	return d_scanned_number_presence_in_row;
+}
+
+int* createNumberMapping(int* d_number_presence_in_row, int* d_scanned_number_presence_in_row)
+{
+	int* d_number_mapping;
+	dim3 dimBlock = dim3(9, 9, 1);
+	dim3 dimGrid = dim3(1);
+
+	cudaErrorHandling(cudaMalloc((void **)&d_number_mapping, SUD_SIZE * SUD_SIZE * sizeof(int)));
+
+	__numberMapping <<<dimGrid, dimBlock >>>(d_number_mapping, d_number_presence_in_row, d_scanned_number_presence_in_row);
+
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	displaySudokuArray(d_scanned_number_presence_in_row);
+
 }
 
 int* createSolution(int* d_quiz_unsolved)
@@ -328,7 +288,7 @@ int* createSolution(int* d_quiz_unsolved)
 	int *d_scanned_number_presence_in_row;
 
 	d_number_presence_in_row = defineNumberPresenceInRow(d_quiz_unsolved);
-	printf("\n\nWSKAZNIK PRESENCE ZWROCONY\n\n\n");
+
 	d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
 	
 
