@@ -14,6 +14,7 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
   // load input into shared memory.
   // This is exclusive scan, so shift right by one and set first elt to 0
   temp[pout*n + thid] = g_idata[thid];
+	printf("THID: %d, g_idata: %d", thid, g_idata[thid]);
   
   __syncthreads();
 
