@@ -11,10 +11,10 @@ __global__ void __numberMapping(int* d_number_mapping, int* d_number_presence_in
 	int idy = blockDim.y*blockIdx.y + threadIdx.y;
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
-	printf("ID: %d, PRES: %d, ID2: %d, VAL: %d + %d\n", idx*9 + idy, d_number_presence_in_row[idx*9 + idy], idx*9+idy - d_scanned_number_presence_in_row[idx*9+idy], idy, d_scanned_number_presence_in_row[idx*9+idy]);
-	if(d_number_presence_in_row[idx*9 + idy] == 0)
+	printf("ID: %d, PRES: %d, ID2: %d, VAL: %d + %d\n", idy*9 + idx, d_number_presence_in_row[idy*9 + idx], idy*9+idx - d_scanned_number_presence_in_row[idy*9+idx], idx, d_scanned_number_presence_in_row[idy*9+idx]);
+	if(d_number_presence_in_row[idy*9 + idx] == 0)
 	{
-		d_number_mapping[idx*9+idy - d_scanned_number_presence_in_row[idx*9+idy]] = idy + d_scanned_number_presence_in_row[idx*9+idy];
+		d_number_mapping[idy*9+idx - d_scanned_number_presence_in_row[idy*9+idx]] = idx + d_scanned_number_presence_in_row[idy*9+idx];
 	}
 	__syncthreads();
 }
