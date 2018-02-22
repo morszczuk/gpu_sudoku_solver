@@ -240,6 +240,8 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
 	cudaErrorHandling(cudaDeviceSynchronize());
 	displaySudokuArray(d_number_presence_in_row);
+
+	return d_number_presence_in_row;
 }
 
 int* scanNumberPresenceInRow(int* d_number_presence_in_row)
