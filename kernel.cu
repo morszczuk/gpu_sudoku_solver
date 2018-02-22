@@ -231,7 +231,7 @@ int* fillNumberPresenceArray(int* d_sudoku)
 	__fillNumberPresenceArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence);
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	displayNumberPresenceArray(d_number_presence);
+	//displayNumberPresenceArray(d_number_presence);
 
 	return d_number_presence;
 }
@@ -275,7 +275,7 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
 	cudaErrorHandling(cudaDeviceSynchronize());
 	printf("\n\nPO DEFINE\n\n\n");
-	// displaySudokuArray(d_number_presence_in_row);
+	displaySudokuArray(d_number_presence_in_row);
 
 	return d_number_presence_in_row;
 }
