@@ -266,7 +266,7 @@ int* createSolution(int* d_quiz_unsolved)
 	int *d_scanned_number_presence_in_row;
 
 	d_number_presence_in_row = defineNumberPresenceInRow(d_quiz_unsolved);
-	d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
+	// d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
 	
 
 }
