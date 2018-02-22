@@ -239,7 +239,7 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 
 	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
 	cudaErrorHandling(cudaDeviceSynchronize());
-	displaySudokuArray(d_number_presence_in_row);
+	// displaySudokuArray(d_number_presence_in_row);
 
 	return d_number_presence_in_row;
 }
@@ -266,7 +266,7 @@ int* createSolution(int* d_quiz_unsolved)
 	int *d_scanned_number_presence_in_row;
 
 	d_number_presence_in_row = defineNumberPresenceInRow(d_quiz_unsolved);
-	// d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
+	d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
 	
 
 }
