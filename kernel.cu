@@ -38,7 +38,10 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
 		__syncthreads();
   }
 
-  g_odata[thid] = temp[pout*n+thid]; // write output
+	if(thid > 0)
+  	g_odata[thid-1] = temp[pout*n+thid]; // write output
+	if (thid == n -1 )
+		g_odata[thid] = g_odata[thid-1] + g_idata[thid];
 } 
 
 
