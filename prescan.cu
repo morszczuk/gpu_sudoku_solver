@@ -47,3 +47,29 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
   g_odata[2*thid] = temp[2*thid]; // write results to device memory
   g_odata[2*thid+1] = temp[2*thid+1];
 } 
+
+__global__ void scan(int *g_odata, int *g_idata, int n)
+{
+  extern __shared__ int temp[]; // allocated on invocation
+  int thid = threadIdx.x;
+  int pout = 0, pin = 1;
+  // load input into shared memory.
+  // This is exclusive scan, so shift right by one and set first elt to 0
+  temp[pout*n + thid] = g_idata[thid];
+  
+  __syncthreads();
+
+  for (int offset = 1; offset < n; offset *= 2)
+  {
+    pout = 1 - pout; // swap double buffer indices
+    pin = 1 - pout;
+    if (thid >= offset)
+      temp[pout*n+thid] += temp[pin*n+thid - offset];
+    else
+      temp[pout*n+thid] = temp[pin*n+thid];
+
+    __syncthreads();
+  }
+
+  g_odata[thid] = temp[pout*n+thid1]; // write output
+} 
