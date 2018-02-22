@@ -257,7 +257,7 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 	cudaErrorHandling(cudaMalloc((void **)&d_scanned_number_presence_in_row, SUD_SIZE * sizeof(int)));
 
 	printf("\n\n\nPRZED SCANEM\n\n\n");
-	// __prescan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
+	__prescan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
 
 	// cudaErrorHandling(cudaDeviceSynchronize());
 
