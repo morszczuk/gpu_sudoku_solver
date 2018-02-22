@@ -13,7 +13,8 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
   int pout = 0, pin = 1;
   // load input into shared memory.
   // This is exclusive scan, so shift right by one and set first elt to 0
-  temp[pout*n + thid] = g_idata[thid];
+  // temp[pout*n + thid] = g_idata[thid];
+	temp[pout*n + thid] = (thid > 0) ? g_idata[thid-1] : 0; 
 	printf("THID: %d, g_idata: %d\n", thid, g_idata[thid]);
   
   __syncthreads();
