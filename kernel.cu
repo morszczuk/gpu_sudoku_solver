@@ -17,7 +17,7 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
   temp[2*thid] = g_idata[2*thid]; // load input into shared memory
   temp[2*thid+1] = g_idata[2*thid+1];
 
-	printf("temp[2*thid] = %d\ntemp[2*thid] =%d", temp[2*thid], temp[2*thid+1]);
+	printf("---\ntemp[2*%d] = %d\ntemp[2*%d] =%d\n", thid, temp[2*thid], thid, temp[2*thid+1]);
 
 	__syncthreads();
 
