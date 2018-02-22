@@ -11,7 +11,7 @@ __global__ void __numberMapping(int* d_number_mapping, int* d_number_presence_in
 	int idy = blockDim.y*blockIdx.y + threadIdx.y;
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
-	printf("ID: %d, PRES: %d, ID2: %d, VAL: %d + %d\n", idy*9 + idx, d_number_presence_in_row[idy*9 + idx], idy*9+idx - d_scanned_number_presence_in_row[idy*9+idx], idx, d_scanned_number_presence_in_row[idy*9+idx]);
+	// printf("ID: %d, PRES: %d, ID2: %d, VAL: %d + %d\n", idy*9 + idx, d_number_presence_in_row[idy*9 + idx], idy*9+idx - d_scanned_number_presence_in_row[idy*9+idx], idx, d_scanned_number_presence_in_row[idy*9+idx]);
 	if(d_number_presence_in_row[idy*9 + idx] == 0)
 	{
 		d_number_mapping[idy*9+idx - d_scanned_number_presence_in_row[idy*9+idx]] = idx + d_scanned_number_presence_in_row[idy*9+idx];
@@ -292,9 +292,7 @@ int* createSolution(int* d_quiz_unsolved)
 
 	d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
 
-	createNumberMapping(d_number_presence_in_row, d_scanned_number_presence_in_row);
-	
-
+	// createNumberMapping(d_number_presence_in_row, d_scanned_number_presence_in_row);
 }
 
 cudaError_t solveSudoku(int* h_sudoku_quiz_solved, int* h_sudoku_quiz_unsolved)
