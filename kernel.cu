@@ -239,6 +239,7 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 
 	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
 	cudaErrorHandling(cudaDeviceSynchronize());
+	printf("\n\nPO DEFINE\n\n\n");
 	// displaySudokuArray(d_number_presence_in_row);
 
 	return d_number_presence_in_row;
@@ -250,6 +251,8 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 	dim3 dimBlock = dim3(4, 1, 1);
 	dim3 dimGrid = dim3(1);
 	int sharedMemorySize = 9* sizeof(int);
+
+	printf("\n\n\nPRZED ALOKACJĄ\n\n\n");
 
 	cudaErrorHandling(cudaMalloc((void **)&d_scanned_number_presence_in_row, SUD_SIZE * SUD_SIZE * sizeof(int)));
 
@@ -267,6 +270,7 @@ int* createSolution(int* d_quiz_unsolved)
 	int *d_scanned_number_presence_in_row;
 
 	d_number_presence_in_row = defineNumberPresenceInRow(d_quiz_unsolved);
+	printf("\n\nWSKAZNIK PRESENCE ZWROCONY\n\n\n");
 	d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
 	
 
