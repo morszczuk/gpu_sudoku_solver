@@ -25,7 +25,7 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
     pin = 1 - pout;
     if (thid >= offset)
 		{
-			printf("THID>OFFSET, THID: %d, %d + %d = %d\n", thid, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
+			printf("THID>OFFSET, THID: %d, id1: %d, id2: %d, %d + %d = %d\n", thid, pout*n+thid, pin*n+thid - offset, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
       temp[pout*n+thid] += temp[pin*n+thid - offset];
 		}
     else
