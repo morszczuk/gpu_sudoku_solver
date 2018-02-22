@@ -12,6 +12,7 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
   extern __shared__ int temp[];// allocated on invocation
   int thid = threadIdx.x;
   int offset = 1;
+	printf("THID: [%d]\n", thid);
 
   temp[2*thid] = g_idata[2*thid]; // load input into shared memory
   temp[2*thid+1] = g_idata[2*thid+1];
@@ -254,10 +255,10 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 
 	printf("\n\n\nPRZED ALOKACJĄ\n\n\n");
 
-	cudaErrorHandling(cudaMalloc((void **)&d_scanned_number_presence_in_row, SUD_SIZE * sizeof(int)));
+	// cudaErrorHandling(cudaMalloc((void **)&d_scanned_number_presence_in_row, SUD_SIZE * sizeof(int)));
 
 	printf("\n\n\nPRZED SCANEM\n\n\n");
-	__prescan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
+	// __prescan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
 
 	cudaErrorHandling(cudaDeviceSynchronize());
 
