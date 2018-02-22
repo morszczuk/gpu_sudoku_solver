@@ -259,9 +259,9 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 	printf("\n\n\nPRZED SCANEM\n\n\n");
 	__prescan <<<dimGrid, dimBlock, sharedMemorySize>>> (d_scanned_number_presence_in_row, d_number_presence_in_row, 9);
 
-	// cudaErrorHandling(cudaDeviceSynchronize());
+	cudaErrorHandling(cudaDeviceSynchronize());
 
-	// displaySudokuArray(d_scanned_number_presence_in_row);
+	displaySudokuArray(d_scanned_number_presence_in_row);
 	return d_scanned_number_presence_in_row;
 }
 
