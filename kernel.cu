@@ -28,6 +28,8 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
       temp[pout*n+thid] = temp[pin*n+thid];
 
     __syncthreads();
+		printf("THID: %d, OFFSET: %d, TEMP: %d", thid, offset, temp[pout*n + thid]);
+		__syncthreads();
   }
 
   g_odata[thid] = temp[pout*n+thid]; // write output
