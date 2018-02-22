@@ -11,8 +11,8 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
   extern __shared__ int temp[]; // allocated on invocation
   // int thid = threadIdx.x;
 	// int thid = blockDim.x*blockIdx.x + threadIdx.x;
-	int thid = blockDim.y*blockIdx.y + threadIdx.y;
-	int blockOffset = blockDim.x*blockIdx.x + threadIdx.x;
+	int blockOffset = blockDim.y*blockIdx.y + threadIdx.y;
+	int thid = blockDim.x*blockIdx.x + threadIdx.x;
 
 	printf("THID: %d, blockOffset: %d\n", thid, blockOffset);
   
