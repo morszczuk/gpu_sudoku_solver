@@ -14,8 +14,8 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
   int offset = 1;
 	printf("THID: [%d]\n", thid);
 
-  // temp[2*thid] = g_idata[2*thid]; // load input into shared memory
-  // temp[2*thid+1] = g_idata[2*thid+1];
+  temp[2*thid] = g_idata[2*thid]; // load input into shared memory
+  temp[2*thid+1] = g_idata[2*thid+1];
 
 
   // for (int d = n>>1; d > 0; d >>= 1) // build sum in place up the tree
@@ -249,9 +249,9 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 {
 	int *d_scanned_number_presence_in_row;
-	dim3 dimBlock = dim3(4, 1, 1);
+	dim3 dimBlock = dim3(5, 1, 1);
 	dim3 dimGrid = dim3(1);
-	int sharedMemorySize = 9* sizeof(int);
+	int sharedMemorySize = 10* sizeof(int);
 
 	printf("\n\n\nPRZED ALOKACJĄ\n\n\n");
 
