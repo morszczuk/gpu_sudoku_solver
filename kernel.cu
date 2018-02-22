@@ -17,6 +17,8 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
   temp[2*thid] = g_idata[2*thid]; // load input into shared memory
   temp[2*thid+1] = g_idata[2*thid+1];
 
+	printf("temp[2*thid] = %d\ntemp[2*thid] =%d", temp[2*thid], temp[2*thid+1]);
+
 
   // for (int d = n>>1; d > 0; d >>= 1) // build sum in place up the tree
   // {
