@@ -11,6 +11,7 @@ __global__ void __numberMapping(int* d_number_mapping, int* d_number_presence_in
 	int idy = blockDim.y*blockIdx.y + threadIdx.y;
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
+	printf("ID: %d, PRES: %d, ID2: %d, VAL: %d + %d", idx*9 + idy, d_number_presence_in_row[idx*9 + idy], idx*9+idy - d_scanned_number_presence_in_row[idx*9+idy], idy, d_scanned_number_presence_in_row[idx*9+idy]);
 	if(d_number_presence_in_row[idx*9 + idy] == 0)
 	{
 		d_number_mapping[idx*9+idy - d_scanned_number_presence_in_row[idx*9+idy]] = idy + d_scanned_number_presence_in_row[idx*9+idy];
