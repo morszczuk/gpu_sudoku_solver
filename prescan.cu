@@ -3,6 +3,7 @@ __global__ void __prescan(int *g_odata, int *g_idata, int n)
 {
   extern __shared__ int temp[];// allocated on invocation
   int thid = threadIdx.x;
+  printf("THID: [%d]\n", thid);
   int offset = 1;
 
   temp[2*thid] = g_idata[2*thid]; // load input into shared memory
