@@ -15,7 +15,8 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
   // This is exclusive scan, so shift right by one and set first elt to 0
   // temp[pout*n + thid] = g_idata[thid];
 	temp[pout*n + thid] = (thid > 0) ? g_idata[thid-1] : 0;
-	temp[pin*n + thid] = temp[pout*n + thid];
+	// temp[pin*n + thid] = temp[pout*n + thid];
+	temp[pin*n + thid] = 0;
 	printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid]);
   
   __syncthreads();
@@ -27,7 +28,7 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
     if (thid >= offset)
 		{
 			printf("THID>OFFSET, THID: %d, id1: %d, id2: %d, %d + %d = %d\n", thid, pout*n+thid, pin*n+thid - offset, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
-      temp[pout*n+thid] += temp[pin*n+thid - offset];
+      temp[pout*n+thid] = temp[pin*n+thid] + temp[pin*n+thid - offset];
 		}
     else
       temp[pout*n+thid] = temp[pin*n+thid];
