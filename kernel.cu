@@ -24,7 +24,7 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
 	int blockOffset = blockDim.y*blockIdx.y + threadIdx.y;
 	int thid = blockDim.x*blockIdx.x + threadIdx.x;
 
-	printf("THID: %d, blockOffset: %d\n", thid, blockOffset);
+	// printf("THID: %d, blockOffset: %d\n", thid, blockOffset);
   
 	int pout = 0, pin = 1;
 	temp[pout*81 + thid + blockOffset*9] = (thid > 0) ? g_idata[thid-1 + blockOffset*9] : 0;
