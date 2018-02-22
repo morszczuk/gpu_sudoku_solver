@@ -139,7 +139,7 @@ void displaySudokuArray(int* d_number_presence)
 
 	cudaErrorHandling(cudaMemcpy(h_number_presence, d_number_presence, 81 * sizeof(int), cudaMemcpyDeviceToHost));
 
-	printf("---------NUMBER PRESENCE IN ROW-----------\n");
+	printf("----------------------------------------\n");
 	for (int i = 0; i < 9; i++)
 	{
 		for(int j = 0; j < 9; j++)
@@ -243,7 +243,7 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 
 	__defineNumberPresenceInRow <<<dimGrid, dimBlock>>>(d_quiz_unsolved, d_number_presence_in_row);
 	cudaErrorHandling(cudaDeviceSynchronize());
-	printf("\n\nPO DEFINE\n\n\n");
+	printf("------Number presence array------\n");
 	displaySudokuArray(d_number_presence_in_row);
 
 	return d_number_presence_in_row;
@@ -262,6 +262,7 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 	
 	cudaErrorHandling(cudaDeviceSynchronize());
 
+	printf("------Scanned number presence array------\n");
 	displaySudokuArray(d_scanned_number_presence_in_row);
 
 	return d_scanned_number_presence_in_row;
