@@ -9,15 +9,19 @@ void cudaErrorHandling(cudaError_t cudaStatus) {
 __global__ void __scan(int *g_odata, int *g_idata, int n)
 {
   extern __shared__ int temp[]; // allocated on invocation
-  int thid = threadIdx.x;
-  int pout = 0, pin = 1;
+  // int thid = threadIdx.x;
+	// int thid = blockDim.x*blockIdx.x + threadIdx.x;
+	int thid = blockDim.y*blockIdx.y + threadIdx.y;
+	int blockOffset = blockDim.x*blockIdx.x + threadIdx.x;
+  
+	int pout = 0, pin = 1;
   // load input into shared memory.
   // This is exclusive scan, so shift right by one and set first elt to 0
   // temp[pout*n + thid] = g_idata[thid];
-	temp[pout*n + thid] = (thid > 0) ? g_idata[thid-1] : 0;
+	temp[pout*n + thid + blockOffset*9] = (thid > 0) ? g_idata[thid-1 + blockOffset*9] : 0;
 	// temp[pin*n + thid] = temp[pout*n + thid];
-	temp[pin*n + thid] = 0;
-	printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid]);
+	temp[pin*n + thid + blockOffset*9] = 0;
+	printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid + blockOffset*9]);
   
   __syncthreads();
 
@@ -27,21 +31,21 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
     pin = 1 - pout;
     if (thid >= offset)
 		{
-			printf("THID>OFFSET, THID: %d, id1: %d, id2: %d, %d + %d = %d\n", thid, pout*n+thid, pin*n+thid - offset, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
-      temp[pout*n+thid] = temp[pin*n+thid] + temp[pin*n+thid - offset];
+			// printf("THID>OFFSET, THID: %d, id1: %d, id2: %d, %d + %d = %d\n", thid, pout*n+thid, pin*n+thid - offset, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
+      temp[pout*n+thid + blockOffset*9] = temp[pin*n+thid + blockOffset*9] + temp[pin*n+thid - offset + blockOffset*9];
 		}
     else
-      temp[pout*n+thid] = temp[pin*n+thid];
+      temp[pout*n+thid + blockOffset*9] = temp[pin*n+thid + blockOffset*9];
 
     __syncthreads();
-		printf("THID: %d, OFFSET: %d, TEMP[%d]: %d\n", thid, offset, pout*n + thid, temp[pout*n + thid]);
+		//printf("THID: %d, OFFSET: %d, TEMP[%d]: %d\n", thid, offset, pout*n + thid, temp[pout*n + thid]);
 		__syncthreads();
   }
 
 	if(thid > 0)
-  	g_odata[thid-1] = temp[pout*n+thid]; // write output
+  	g_odata[thid-1+ blockOffset*9] = temp[pout*n+thid+ blockOffset*9]; // write output
 	if (thid == n -1 )
-		g_odata[thid] = g_odata[thid-1] + g_idata[thid];
+		g_odata[thid+ blockOffset*9] = g_odata[thid-1+ blockOffset*9] + g_idata[thid+ blockOffset*9];
 } 
 
 
@@ -295,9 +299,9 @@ int* defineNumberPresenceInRow(int* d_quiz_unsolved)
 int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 {
 	int *d_scanned_number_presence_in_row;
-	dim3 dimBlock = dim3(9, 1, 1);
+	dim3 dimBlock = dim3(9, 9, 1);
 	dim3 dimGrid = dim3(1);
-	int sharedMemorySize = 18* sizeof(int);
+	int sharedMemorySize = 18*9* sizeof(int);
 
 	printf("\n\n\nPRZED ALOKACJĄ\n\n\n");
 
