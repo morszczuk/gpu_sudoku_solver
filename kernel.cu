@@ -24,7 +24,10 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
     pout = 1 - pout; // swap double buffer indices
     pin = 1 - pout;
     if (thid >= offset)
+		{
+			printf("THID>OFFSET, THID: %d, %d + %d = %d\n", thid, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
       temp[pout*n+thid] += temp[pin*n+thid - offset];
+		}
     else
       temp[pout*n+thid] = temp[pin*n+thid];
 
