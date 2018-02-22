@@ -289,7 +289,7 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 	int *d_scanned_number_presence_in_row;
 	dim3 dimBlock = dim3(9, 1, 1);
 	dim3 dimGrid = dim3(1);
-	int sharedMemorySize = 9* sizeof(int);
+	int sharedMemorySize = 18* sizeof(int);
 
 	printf("\n\n\nPRZED ALOKACJĄ\n\n\n");
 
