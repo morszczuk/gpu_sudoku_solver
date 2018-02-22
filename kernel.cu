@@ -20,9 +20,9 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
   // load input into shared memory.
   // This is exclusive scan, so shift right by one and set first elt to 0
   // temp[pout*n + thid] = g_idata[thid];
-	temp[pout*n + thid + blockOffset*9] = (thid > 0) ? g_idata[thid-1 + blockOffset*9] : 0;
+	temp[pout*81 + thid + blockOffset*9] = (thid > 0) ? g_idata[thid-1 + blockOffset*9] : 0;
 	// temp[pin*n + thid] = temp[pout*n + thid];
-	temp[pin*n + thid + blockOffset*9] = 0;
+	temp[pin*81 + thid + blockOffset*9] = 0;
 	// printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid + blockOffset*9]);
   
   __syncthreads();
@@ -34,10 +34,10 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
     if (thid >= offset)
 		{
 			// printf("THID>OFFSET, THID: %d, id1: %d, id2: %d, %d + %d = %d\n", thid, pout*n+thid, pin*n+thid - offset, temp[pout*n+thid], temp[pin*n+thid - offset], temp[pout*n+thid] + temp[pin*n+thid - offset]);
-      temp[pout*n+thid + blockOffset*9] = temp[pin*n+thid + blockOffset*9] + temp[pin*n+thid - offset + blockOffset*9];
+      temp[pout*81+thid + blockOffset*9] = temp[pin*81+thid + blockOffset*9] + temp[pin*81+thid - offset + blockOffset*9];
 		}
     else
-      temp[pout*n+thid + blockOffset*9] = temp[pin*n+thid + blockOffset*9];
+      temp[pout*81+thid + blockOffset*9] = temp[pin*81+thid + blockOffset*9];
 
     __syncthreads();
 		//printf("THID: %d, OFFSET: %d, TEMP[%d]: %d\n", thid, offset, pout*n + thid, temp[pout*n + thid]);
@@ -45,9 +45,12 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
   }
 
 	if(thid > 0)
-  	g_odata[thid-1+ blockOffset*9] = temp[pout*n+thid+ blockOffset*9]; // write output
+  	g_odata[thid-1+ blockOffset*9] = temp[pout*81+thid+ blockOffset*9]; // write output
+	__syncthreads();
+
 	if (thid == n -1 )
 		g_odata[thid+ blockOffset*9] = g_odata[thid-1+ blockOffset*9] + g_idata[thid+ blockOffset*9];
+		__syncthreads();
 } 
 
 
