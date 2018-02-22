@@ -278,7 +278,7 @@ int* createNumberMapping(int* d_number_presence_in_row, int* d_scanned_number_pr
 
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	displaySudokuArray(d_scanned_number_presence_in_row);
+	displaySudokuArray(d_number_mapping);
 
 }
 
@@ -290,6 +290,8 @@ int* createSolution(int* d_quiz_unsolved)
 	d_number_presence_in_row = defineNumberPresenceInRow(d_quiz_unsolved);
 
 	d_scanned_number_presence_in_row = scanNumberPresenceInRow(d_number_presence_in_row);
+
+	createNumberMapping(d_number_presence_in_row, d_scanned_number_presence_in_row);
 	
 
 }
