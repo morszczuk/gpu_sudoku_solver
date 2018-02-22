@@ -13,6 +13,8 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
 	// int thid = blockDim.x*blockIdx.x + threadIdx.x;
 	int thid = blockDim.y*blockIdx.y + threadIdx.y;
 	int blockOffset = blockDim.x*blockIdx.x + threadIdx.x;
+
+	printf("THID: %d, blockOffset: %d", thid, blockOffset);
   
 	int pout = 0, pin = 1;
   // load input into shared memory.
@@ -21,7 +23,7 @@ __global__ void __scan(int *g_odata, int *g_idata, int n)
 	temp[pout*n + thid + blockOffset*9] = (thid > 0) ? g_idata[thid-1 + blockOffset*9] : 0;
 	// temp[pin*n + thid] = temp[pout*n + thid];
 	temp[pin*n + thid + blockOffset*9] = 0;
-	printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid + blockOffset*9]);
+	// printf("THID: %d, g_idata: %d\n", thid, temp[pout*n + thid + blockOffset*9]);
   
   __syncthreads();
 
