@@ -261,7 +261,7 @@ int* scanNumberPresenceInRow(int* d_number_presence_in_row)
 
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	displaySudokuArray(d_scanned_number_presence_in_row);
+	// displaySudokuArray(d_scanned_number_presence_in_row);
 	return d_scanned_number_presence_in_row;
 }
 
