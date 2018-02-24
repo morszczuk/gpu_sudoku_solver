@@ -342,7 +342,7 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 
 	sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
-	createPermutations(sum_empty_elems_in_row);
+	// createPermutations(sum_empty_elems_in_row);
 
 	if(row == 8)
 	{
