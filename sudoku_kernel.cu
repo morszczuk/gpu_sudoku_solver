@@ -369,7 +369,7 @@ int** createAlternativeSolutions(int* h_current_solution, int num_of_elements_to
 	}
 }
 
-void createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
+int** createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
 	int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
@@ -384,8 +384,7 @@ void createAlternativeSolutions(int row, int* h_current_solution, int* d_current
 
 	int** rowPermutations = createPermutations(num_of_elements_to_insert);
 
-	int** alternativeSolutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
-
+	return createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
@@ -398,8 +397,8 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	
 	d_current_solution = copySudokuToDevice(current_solution);
 
-	createAlternativeSolutions(row, current_solution, d_current_solution);
-
+	int** alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
+	current_solution = alternative_solutions[0];
 	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
 	// createPermutations(sum_empty_elems_in_row);
