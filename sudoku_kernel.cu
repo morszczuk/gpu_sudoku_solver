@@ -35,10 +35,20 @@ int* copySudokuToDevice(int* h_sudoku)
 	return d_sudoku;
 }
 
+int* copySudokuToHost(int* d_sudoku)
+{
+	int* h_sudoku = new int[NN*NN];
+
+	cudaErrorHandling(cudaMemcpy(h_sudoku, d_sudoku, NN * NN * sizeof(int), cudaMemcpyDeviceToHost));
+
+	return h_sudoku;
+}
+
 resolution* createRowSolution(int row, int* current_solution)
 {
 	int *d_current_solution = copySudokuToDevice(current_solution);
-	displayHostArray("CREATE ROW SOLUTION", d_current_solution, NN, NN);
+	int *lalala = copySudokuToHost(d_current_solution);
+	displayHostArray("CREATE ROW SOLUTION", lalala, NN, NN);
 
 }
 
