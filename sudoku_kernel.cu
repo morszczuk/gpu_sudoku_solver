@@ -30,7 +30,7 @@ __global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
 	}
 
 	if(idx == 0)
-		d_number_presence[idx] += d_number_presence[8];
+		d_number_presence[idx + row*NN] += d_number_presence[8 + row*NN];
 }
 
 __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
