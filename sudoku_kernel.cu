@@ -259,8 +259,8 @@ int* defineNumbersToInsert(int numbers_to_insert_amount, int* h_number_presence,
 	{
 		if(h_number_presence[j] == 0)
 		{
-			printf("O, dodaję element!!! Liczba do wstawienia: %d\n", j + 1);
-			numbers_to_insert[i] = j + 1;
+			printf("O, dodaję element!!! Liczba do wstawienia: %d\n", (j % NN) + 1);
+			numbers_to_insert[i] = (j % NN) + 1;
 			i++;
 		}
 		j++;
