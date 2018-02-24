@@ -44,11 +44,21 @@ int* copySudokuToHost(int* d_sudoku)
 	return h_sudoku;
 }
 
-resolution* createRowSolution(int row, int* current_solution)
+void insertRowToSolution(int row, int* current_solution, int* quiz)
+{
+	for(int i = 0; i < NN; i ++)
+	{
+		current_solution[row*NN + i] = quiz[row*NN + i];
+	}
+}
+
+resolution* createRowSolution(int row, int* current_solution, int* quiz)
 {
 	int *d_current_solution = copySudokuToDevice(current_solution);
+	insertRowToSolution(row, current_solution, quiz);
 	int *lalala = copySudokuToHost(d_current_solution);
 	displayHostArray("CREATE ROW SOLUTION", lalala, NN, NN);
+	displayHostArray("SOLUTION WITH INSERTED ROW", current_solution, NN, NN);
 
 }
 
@@ -57,6 +67,8 @@ cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
   int* resolution = new int [NN*NN];
   displayHostArray("RESOLUTION", resolution, NN, NN);
 
-	createRowSolution(0, resolution);
+	createRowSolution(0, resolution, h_sudoku_unsolved);
+
+	return cudaSuccess;
 }
 
