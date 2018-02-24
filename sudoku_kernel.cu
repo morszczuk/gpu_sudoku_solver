@@ -52,13 +52,27 @@ void insertRowToSolution(int row, int* current_solution, int* quiz)
 	}
 }
 
-resolution* createRowSolution(int row, int* current_solution, int* quiz)
+int* copySudoku(int* sudoku)
 {
-	int *d_current_solution = copySudokuToDevice(current_solution);
+	int* sudokuCopy = new int[NN*NN];
+	for(int i = 0; i < NN; i++)
+	{
+		sudokuCopy[i] = sudoku[i];
+	}
+	return sudokuCopy;
+}
+
+resolution* createRowSolution(int row, int* _current_solution, int* quiz)
+{
+	int* current_solution, *d_current_solution;
+
+	current_solution = copySudoku(_current_solution);
 	insertRowToSolution(row, current_solution, quiz);
-	int *lalala = copySudokuToHost(d_current_solution);
-	displayHostArray("CREATE ROW SOLUTION", lalala, NN, NN);
+
 	displayHostArray("SOLUTION WITH INSERTED ROW", current_solution, NN, NN);
+
+	d_current_solution = copySudokuToDevice(current_solution);
+	
 
 }
 
