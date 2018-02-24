@@ -14,7 +14,10 @@ __global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
 	printf("[IDX: %d]\n", idx);
 	// __syncthreads();
 
-	for (int i = 1 ; i < NN / 2 && idx + row*NN < NN*NN; i *= 2)
+	if( idx % NN == 8)
+		return;
+
+	for (int i = 1 ; i <= NN / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
 			printf("BEFORE [Thread %d]: %d + %d\n", idx + row*NN, d_number_presence[idx + row*NN], d_number_presence[idx + i + row*NN]);
