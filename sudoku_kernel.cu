@@ -181,14 +181,14 @@ int* insertRowToSolution(int row, int* current_solution, int* quiz)
 
 void sumNumberPresenceInRow(int* d_number_presence, int row)
 {
-	int* summing_result = new int[243];
+	int* summing_result = new int[NN*NN];
 	dim3 dimBlock2 = dim3(9, 1, 1);
 	dim3 dimGrid2 = dim3(1);
 
 	__sumNumberPresenceInRow <<<dimGrid2, dimBlock2>>> (d_number_presence, row);
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	cudaErrorHandling(cudaMemcpy(summing_result, d_number_presence, 243 * sizeof(int), cudaMemcpyDeviceToHost));
+	cudaErrorHandling(cudaMemcpy(summing_result, d_number_presence, NN*NN * sizeof(int), cudaMemcpyDeviceToHost));
 
 	printf("A WIĘC DODAŁEM I O TO LICZBA ELEMENTÓW WYPEŁNIONYCH: %d\n", summing_result[row*NN]);
 }
