@@ -74,7 +74,7 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	resolution* created_resolution = new resolution();
 
 	current_solution = insertRowToSolution(row, _current_solution, quiz);
-
+	displayHostArray("A TAKA PO WSTAWIENIU", current_solution, NN, NN);
 	d_current_solution = copySudokuToDevice(current_solution);
 
 	if(row == 8)
