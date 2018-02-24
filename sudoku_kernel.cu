@@ -179,7 +179,7 @@ int* insertRowToSolution(int row, int* current_solution, int* quiz)
 	return solution_copy;
 }
 
-void sumNumberPresenceInRow(int* d_number_presence, int row)
+int sumNumberPresenceInRow(int* d_number_presence, int row)
 {
 	int* summing_result = new int[NN*NN];
 	dim3 dimBlock2 = dim3(9, 1, 1);
@@ -190,14 +190,17 @@ void sumNumberPresenceInRow(int* d_number_presence, int row)
 
 	cudaErrorHandling(cudaMemcpy(summing_result, d_number_presence, NN*NN * sizeof(int), cudaMemcpyDeviceToHost));
 
-	printf("A WIĘC DODAŁEM I O TO LICZBA ELEMENTÓW WYPEŁNIONYCH: %d\n", summing_result[row*NN]);
+	return summing_result[row*NN];
 }
 
 int countEmptyElemsInRow(int row, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
+	int filled_elements = sumNumberPresenceInRow(d_number_presence, row);
 
-	sumNumberPresenceInRow(d_number_presence, row);
+	printf("LICZBA ELEMENTÓW WYPEŁNIONYCH w rzędzie %d: %d\n", row + 1, filled_elements);
+
+	return NN - filled_elements;
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
