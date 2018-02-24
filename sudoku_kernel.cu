@@ -68,12 +68,12 @@ int* insertRowToSolution(int row, int* current_solution, int* quiz)
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 {
+
+	displayHostArray("TAKA PRZYCHODZI", _current_solution, NN, NN);
 	int* current_solution, *d_current_solution;
 	resolution* created_resolution = new resolution();
 
 	current_solution = insertRowToSolution(row, _current_solution, quiz);
-
-	displayHostArray("SOLUTION WITH INSERTED ROW", current_solution, NN, NN);
 
 	d_current_solution = copySudokuToDevice(current_solution);
 
