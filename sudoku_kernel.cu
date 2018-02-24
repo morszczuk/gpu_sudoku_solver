@@ -17,9 +17,9 @@ __global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
 	for (int i = 1 ; i <= NN / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
-			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx + row*NN]);
 			d_number_presence[idx + row*NN] += d_number_presence[idx + i + row*NN];
-			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx+ row*NN]);
 		}
 		else
 		{
