@@ -275,7 +275,7 @@ int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presen
 	int* positions_to_insert = new int[numbers_to_insert_amount];
 
 	int i = 0;
-	int j = 0;
+	int j = row*NN;
 
 	while(i < numbers_to_insert_amount)
 	{
