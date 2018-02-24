@@ -356,6 +356,8 @@ int* insertPossibleSolutionToRow(int* h_current_solution, int num_of_elements_to
 	}
 	printf("ALTERNATYWNE ROZWIAZANIE STWORZONE!!!!\n");
 	displayHostArray("ALTERNATYWNE ROZWWIAZANIE", possibleSolution, NN, NN);
+
+	return possibleSolution;
 }
 
 int** createAlternativeSolutions(int* h_current_solution, int num_of_elements_to_insert, int* positions_to_insert, int* numbers_to_insert, int** rowPermutations, int row)
