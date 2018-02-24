@@ -64,17 +64,13 @@ int* insertRowToSolution(int row, int* current_solution, int* quiz)
 	return solution_copy;
 }
 
-
-
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 {
-
-	displayHostArray("TAKA PRZYCHODZI", _current_solution, NN, NN);
 	int* current_solution, *d_current_solution;
 	resolution* created_resolution = new resolution();
 
 	current_solution = insertRowToSolution(row, _current_solution, quiz);
-	displayHostArray("A TAKA PO WSTAWIENIU", current_solution, NN, NN);
+	
 	d_current_solution = copySudokuToDevice(current_solution);
 
 	if(row == 8)
@@ -90,10 +86,12 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 
 cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
 {
-  int* resolution = new int [NN*NN];
-  displayHostArray("RESOLUTION", resolution, NN, NN);
+  int* empty_resolution = new int [NN*NN];
+	resolution* final_resolution;
+  displayHostArray("RESOLUTION", empty_resolution, NN, NN);
 
-	createRowSolution(0, resolution, h_sudoku_unsolved);
+	final_resolution = createRowSolution(0, empty_resolution, h_sudoku_unsolved);
+	printf("Wynikow: %d", final_resolution -> n);
 
 	return cudaSuccess;
 }
