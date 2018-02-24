@@ -361,12 +361,14 @@ int* insertPossibleSolutionToRow(int* h_current_solution, int num_of_elements_to
 int** createAlternativeSolutions(int* h_current_solution, int num_of_elements_to_insert, int* positions_to_insert, int* numbers_to_insert, int** rowPermutations, int row)
 {
 	int n_factorial = factorial(num_of_elements_to_insert);
-	int** alternativeSolutions = new int*[n_factorial];
+	int** alternative_solutions = new int*[n_factorial];
 
 	for(int i = 0; i < n_factorial; i++)
 	{
-		alternativeSolutions[i] = insertPossibleSolutionToRow(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations[i], row);
+		alternative_solutions[i] = insertPossibleSolutionToRow(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations[i], row);
 	}
+
+	return alternative_solutions;
 }
 
 int** createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
