@@ -17,20 +17,20 @@ __global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
 	for (int i = 1 ; i <= NN / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
-			// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
 			d_number_presence[idx + row*NN] += d_number_presence[idx + i + row*NN];
-			// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
 		}
 		else
 		{
-			// printf("[Thread %d] returning\n", idx);
+			printf("[Thread %d] returning\n", idx);
 			return;
 		}
 		__syncthreads();
 	}
 
 	if(idx == 0)
-		d_number_presence[idx] += d_number_presence[idx + 4];
+		d_number_presence[idx] += d_number_presence[4];
 }
 
 __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
