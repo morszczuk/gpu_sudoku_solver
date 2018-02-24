@@ -253,11 +253,11 @@ int* defineNumbersToInsert(int numbers_to_insert_amount, int* h_number_presence,
 	int* numbers_to_insert = new int[numbers_to_insert_amount];
 
 	int i = 0;
-	int j = 0;
+	int j = row*NN;
 
 	while(i < numbers_to_insert_amount)
 	{
-		if(h_number_presence[j] == 1)
+		if(h_number_presence[j] == 0)
 		{
 			printf("O, dodaję element!!! Liczba do wstawienia: %d\n", j + 1);
 			numbers_to_insert[i] = j + 1;
