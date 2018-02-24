@@ -143,13 +143,13 @@ __global__ void __fillNumberPresenceInRowsArray(int* d_sudoku, int* d_number_pre
 		// number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
 	}
 
-	// __syncthreads();
+	__syncthreads();
 
 	d_number_presence_in_rows[idx * SUD_SIZE + idy] = number_presence[idx * 9 + idy];
 	// d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
 	// d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
 	
-	// __syncthreads();
+	__syncthreads();
 }
 
 int* fillNumberPresenceInRowsArray(int* d_sudoku) 
