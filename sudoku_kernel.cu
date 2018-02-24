@@ -6,6 +6,53 @@ void cudaErrorHandling(cudaError_t cudaStatus) {
 	}
 }
 
+void displayHostArray(char* title, int* array, int N, int M)
+{
+  printf("---------%s-----------\n", title);
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+			printf("%d |", array[i*N + j]);
+		
+		printf("\n");
+
+		for (int j = 0; j < N; j++)
+			printf("- |");
+		
+		printf("\n");
+	}
+  printf("------------------------------\n");
+}
+
+int* copySudokuToDevice(int* h_sudoku)
+{
+	int* d_sudoku;
+	
+	cudaErrorHandling(cudaMalloc((void **)&d_sudoku, NN * NN * sizeof(int)));
+
+	cudaErrorHandling(cudaMemcpy(d_sudoku, h_sudoku, NN * NN * sizeof(int), cudaMemcpyHostToDevice));
+
+	return d_sudoku;
+}
+
+int* copySudokuToHost(int* d_sudoku)
+{
+	int* h_sudoku = new int[NN*NN];
+
+	cudaErrorHandling(cudaMemcpy(h_sudoku, d_sudoku, NN * NN * sizeof(int), cudaMemcpyDeviceToHost));
+
+	return h_sudoku;
+}
+
+int* duplicateSudoku(int* sudoku)
+{
+	int* sudokuCopy = new int[NN*NN];
+	for(int i = 0; i < NN*NN; i++)
+	{
+		sudokuCopy[i] = sudoku[i];
+	}
+	return sudokuCopy;
+}
 
 __global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
 {
@@ -69,69 +116,57 @@ __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 	__syncthreads();
 }
 
-int* fillNumberPresenceArray(int* d_sudoku) 
+__global__ void __fillNumberPresenceInRowsArray(int* d_sudoku, int* d_number_presence_in_rows)
 {
-	int* d_number_presence;
-	int sharedMemorySize = 243 * sizeof(int);
+	extern __shared__ int number_presence[];
+	int idx = blockDim.y*blockIdx.y + threadIdx.y;
+	int idy = blockDim.x*blockIdx.x + threadIdx.x;
+	// int index_1, index_2, index_3;
+	int k = SUD_SIZE*SUD_SIZE;
+
+	number_presence[idx * SUD_SIZE + idy] = 0;
+	// number_presence[k + idx * SUD_SIZE + idy] = 0;
+	// number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
+
+	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
+
+	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
+
+	// __syncthreads();
+
+	if (d_sudoku[idx*SUD_SIZE + idy])
+	{
+		number_presence[idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs about number data[idx][idy] - 1 presence in row idx
+		// number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
+		// number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
+	}
+
+	// __syncthreads();
+
+	d_number_presence_in_rows[idx * SUD_SIZE + idy] = number_presence[idx * 9 + idy];
+	// d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
+	// d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
+	
+	// __syncthreads();
+}
+
+int* fillNumberPresenceInRowsArray(int* d_sudoku) 
+{
+	int* d_number_presence_in_rows;
+	int sharedMemorySize = NN*NN * sizeof(int);
 	dim3 dimBlock = dim3(9, 9, 1);
 	dim3 dimGrid = dim3(1);
 
-	cudaErrorHandling(cudaMalloc((void **)&d_number_presence, 243 * sizeof(int)));
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence_in_rows, NN*NN * sizeof(int)));
 
-	__fillNumberPresenceArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence);
+	__fillNumberPresenceInRowsArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence_in_rows);
 	cudaErrorHandling(cudaDeviceSynchronize());
 
 	//displayNumberPresenceArray(d_number_presence);
 
-	return d_number_presence;
-}
-
-void displayHostArray(char* title, int* array, int N, int M)
-{
-  printf("---------%s-----------\n", title);
-	for (int i = 0; i < N; i++)
-	{
-		for (int j = 0; j < M; j++)
-			printf("%d |", array[i*N + j]);
-		
-		printf("\n");
-
-		for (int j = 0; j < N; j++)
-			printf("- |");
-		
-		printf("\n");
-	}
-  printf("------------------------------\n");
-}
-
-int* copySudokuToDevice(int* h_sudoku)
-{
-	int* d_sudoku;
-	
-	cudaErrorHandling(cudaMalloc((void **)&d_sudoku, NN * NN * sizeof(int)));
-
-	cudaErrorHandling(cudaMemcpy(d_sudoku, h_sudoku, NN * NN * sizeof(int), cudaMemcpyHostToDevice));
-
-	return d_sudoku;
-}
-
-int* copySudokuToHost(int* d_sudoku)
-{
-	int* h_sudoku = new int[NN*NN];
-
-	cudaErrorHandling(cudaMemcpy(h_sudoku, d_sudoku, NN * NN * sizeof(int), cudaMemcpyDeviceToHost));
-
-	return h_sudoku;
-}
-
-int* duplicateSudoku(int* sudoku)
-{
-	int* sudokuCopy = new int[NN*NN];
-	for(int i = 0; i < NN*NN; i++)
-	{
-		sudokuCopy[i] = sudoku[i];
-	}
-	return sudokuCopy;
+	return d_number_presence_in_rows;
 }
 
 int* insertRowToSolution(int row, int* current_solution, int* quiz)
@@ -160,7 +195,7 @@ void sumNumberPresenceInRow(int* d_number_presence, int row)
 
 int countEmptyElemsInRow(int row, int* d_current_solution)
 {
-	int* d_number_presence = fillNumberPresenceArray(d_current_solution);
+	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
 
 	sumNumberPresenceInRow(d_number_presence, row);
 }
