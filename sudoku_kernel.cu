@@ -134,7 +134,7 @@ __global__ void __fillNumberPresenceInRowsArray(int* d_sudoku, int* d_number_pre
 
 	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 
-	// __syncthreads();
+	__syncthreads();
 
 	if (d_sudoku[idx*SUD_SIZE + idy])
 	{
