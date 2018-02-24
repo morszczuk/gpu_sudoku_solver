@@ -47,7 +47,7 @@ int* copySudokuToHost(int* d_sudoku)
 int* copySudoku(int* sudoku)
 {
 	int* sudokuCopy = new int[NN*NN];
-	for(int i = 0; i < NN; i++)
+	for(int i = 0; i < NN*NN; i++)
 	{
 		sudokuCopy[i] = sudoku[i];
 	}
