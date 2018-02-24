@@ -291,43 +291,79 @@ int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presen
 	return positions_to_insert;
 }
 
-int countEmptyElemsInRow(int row, int* d_current_solution)
+int countEmptyElemsInRow(int row, int* d_number_presence)
 {
-	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
-	int* h_number_presence = copySudokuToHost(d_number_presence);
+	// int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
+	// int* h_number_presence = copySudokuToHost(d_number_presence);
 	int filled_elements = sumNumberPresenceInRow(d_number_presence, row);
 
-	int* numbersToInsert = defineNumbersToInsert(NN - filled_elements, h_number_presence, row);
+	// int* numbersToInsert = defineNumbersToInsert(NN - filled_elements, h_number_presence, row);
 
-	int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
-	int* h_element_presence = copySudokuToHost(d_element_presence);
-	int* positions_to_insert = definePositionsToInsert(NN - filled_elements, h_element_presence, row);
+	// int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
+	// int* h_element_presence = copySudokuToHost(d_element_presence);
+	// int* positions_to_insert = definePositionsToInsert(NN - filled_elements, h_element_presence, row);
 
 	printf("LICZBA ELEMENTÓW WYPEŁNIONYCH w rzędzie %d: %d\n", row + 1, filled_elements);
 
 	return NN - filled_elements;
 }
 
-void createPermutations(int empty_elems_in_row)
+int factorial(int n)
 {
-	int test[empty_elems_in_row];
-	int myints[] = {1,2,3};
+	if( n == 1) return 1;
+	return n*factorial(n-1);
+}
+
+int** createPermutations(int empty_elems_in_row)
+{
+	int permutations[empty_elems_in_row];
+	int n_factorial = factorial(empty_elems_in_row);
+	int** result = new int*[n_factorial];
+
+	for(int i = 0; i < n_factorial; i++)
+	{
+		result[i] = new int[empty_elems_in_row];
+	}
 
 	for(int i = 0; i < empty_elems_in_row; i ++)
 	{
-		test[i] = i;
+		permutations[i] = i;
 	}
 
 	printf("PERMUTUJEMY\n");
 
+	int i = 0;
 	do
 	{
-		for(int i = 0; i < empty_elems_in_row; i++)
+		for(int j = 0; j < empty_elems_in_row; j++)
 		{
-			printf("%d | ", test[i]);
+			result[i][j] = permutations[j];
+			printf("%d | ", permutations[j]);
 		}
 		printf("\n");
-	} while (std::next_permutation(test,test+empty_elems_in_row));
+		i++;
+	} while (std::next_permutation(permutations, permutations + empty_elems_in_row));
+
+	return result;
+}
+
+void createAlternativeSolutions(int row, int* d_current_solution)
+{
+	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
+	int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
+
+	int* h_number_presence = copySudokuToHost(d_number_presence);
+	int* h_element_presence = copySudokuToHost(d_element_presence);
+
+	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
+
+	int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
+	int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
+
+	int** rowPermutations = createPermutations(num_of_elements_to_insert);
+
+
+
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
@@ -340,7 +376,9 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	
 	d_current_solution = copySudokuToDevice(current_solution);
 
-	sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
+	createAlternativeSolutions(row, d_current_solution);
+
+	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
 	// createPermutations(sum_empty_elems_in_row);
 
