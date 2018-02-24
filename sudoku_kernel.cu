@@ -205,7 +205,7 @@ int countEmptyElemsInRow(int row, int* d_current_solution)
 
 void createPermutations(int empty_elems_in_row)
 {
-	int* test = new int[empty_elems_in_row];
+	int test[empty_elems_in_row];
 	int myints[] = {1,2,3};
 
 	for(int i = 0; i < empty_elems_in_row; i ++)
@@ -213,12 +213,18 @@ void createPermutations(int empty_elems_in_row)
 		test[i] = i;
 	}
 
-	printf("PERMUTUJEMY");
+	printf("PERMUTUJEMY\n");
 
 	do
 	{
-		printf("%d | %d | %d\n", myints[0], myints[1], myints[2]);
-	} while (std::next_permutation(myints,myints+3));
+		// printf("%d | %d | %d\n", myints[0], myints[1], myints[2]);
+		// printf("%d | %d | %d\n", myints[0], myints[1], myints[2]);
+		for(int i = 0; i < empty_elems_in_row; i++)
+		{
+			printf("%d | ", test[i]);
+		}
+		printf("\n");
+	} while (std::next_permutation(test,test+empty_elems_in_row));
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
