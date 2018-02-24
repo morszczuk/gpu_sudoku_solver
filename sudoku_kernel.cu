@@ -347,7 +347,29 @@ int** createPermutations(int empty_elems_in_row)
 	return result;
 }
 
-void createAlternativeSolutions(int row, int* d_current_solution)
+int* insertPossibleSolutionToRow(int* h_current_solution, int num_of_elements_to_insert, int* positions_to_insert, int* numbers_to_insert, int* permutation, int row)
+{
+	int* possibleSolution = duplicateSudoku(h_current_solution);
+	for(int i = 0; i < num_of_elements_to_insert; i++)
+	{
+		possibleSolution[NN*row + positions_to_insert[i]] = numbers_to_insert[permutation[i]];
+	}
+	printf("ALTERNATYWNE ROZWIAZANIE STWORZONE!!!!\n");
+	displayHostArray("ALTERNATYWNE ROZWWIAZANIE", possibleSolution, NN, NN);
+}
+
+int** createAlternativeSolutions(int* h_current_solution, int num_of_elements_to_insert, int* positions_to_insert, int* numbers_to_insert, int** rowPermutations, int row)
+{
+	int n_factorial = factorial(num_of_elements_to_insert);
+	int** alternativeSolutions = new int*[n_factorial];
+
+	for(int i = 0; i < n_factorial; i++)
+	{
+		alternativeSolutions[i] = insertPossibleSolutionToRow(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations[i], row);
+	}
+}
+
+void createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
 	int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
@@ -362,7 +384,7 @@ void createAlternativeSolutions(int row, int* d_current_solution)
 
 	int** rowPermutations = createPermutations(num_of_elements_to_insert);
 
-
+	int** alternativeSolutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
 
 }
 
@@ -376,7 +398,7 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	
 	d_current_solution = copySudokuToDevice(current_solution);
 
-	createAlternativeSolutions(row, d_current_solution);
+	createAlternativeSolutions(row, current_solution, d_current_solution);
 
 	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
