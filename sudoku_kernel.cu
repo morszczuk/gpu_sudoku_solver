@@ -65,6 +65,7 @@ int* copySudoku(int* sudoku)
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 {
 	int* current_solution, *d_current_solution;
+	resolution* created_resolution = new resolution();
 
 	current_solution = copySudoku(_current_solution);
 	insertRowToSolution(row, current_solution, quiz);
@@ -72,8 +73,16 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	displayHostArray("SOLUTION WITH INSERTED ROW", current_solution, NN, NN);
 
 	d_current_solution = copySudokuToDevice(current_solution);
-	
 
+	if(row == 8)
+	{
+		created_resolution -> n = 1;
+		created_resolution -> resolutions = current_solution;
+		return created_resolution;
+	} else
+	{
+		return createRowSolution(row + 1, current_solution, quiz);
+	}
 }
 
 cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
