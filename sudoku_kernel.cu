@@ -29,8 +29,8 @@ __global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
 		__syncthreads();
 	}
 
-	// if(idx == 0)
-		// d_number_presence[idx] += d_number_presence[idx + 128];
+	if(idx == 0)
+		d_number_presence[idx] += d_number_presence[idx + 4];
 }
 
 __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
