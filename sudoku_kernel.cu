@@ -116,6 +116,44 @@ __global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
 	__syncthreads();
 }
 
+
+__global__ void __fillElementPresenceInRowsArray(int* d_sudoku, int* d_number_presence_in_rows)
+{
+	extern __shared__ int number_presence[];
+	int idx = blockDim.y*blockIdx.y + threadIdx.y;
+	int idy = blockDim.x*blockIdx.x + threadIdx.x;
+	// int index_1, index_2, index_3;
+	int k = SUD_SIZE*SUD_SIZE;
+
+	number_presence[idx * SUD_SIZE + idy] = 0;
+	// number_presence[k + idx * SUD_SIZE + idy] = 0;
+	// number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
+
+	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
+
+	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
+
+	__syncthreads();
+
+	if (d_sudoku[idx * NN + idy])
+	{
+		number_presence[idx * NN + idy] = 1; //informs about number data[idx][idy] - 1 presence in row idx
+		// number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
+		// number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
+	}
+
+	__syncthreads();
+
+	d_number_presence_in_rows[idx * NN + idy] = number_presence[idx * NN + idy];
+	// d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
+	// d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
+	
+	__syncthreads();
+}
+
+
 __global__ void __fillNumberPresenceInRowsArray(int* d_sudoku, int* d_number_presence_in_rows)
 {
 	extern __shared__ int number_presence[];
@@ -169,6 +207,23 @@ int* fillNumberPresenceInRowsArray(int* d_sudoku)
 	return d_number_presence_in_rows;
 }
 
+int* fillElementPresenceInRowsArray(int* d_sudoku) 
+{
+	int* d_element_presence_in_rows;
+	int sharedMemorySize = NN*NN * sizeof(int);
+	dim3 dimBlock = dim3(9, 9, 1);
+	dim3 dimGrid = dim3(1);
+
+	cudaErrorHandling(cudaMalloc((void **)&d_element_presence_in_rows, NN*NN * sizeof(int)));
+
+	__fillElementPresenceInRowsArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_element_presence_in_rows);
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	//displayNumberPresenceArray(d_number_presence);
+
+	return d_element_presence_in_rows;
+}
+
 int* insertRowToSolution(int row, int* current_solution, int* quiz)
 {
 	int* solution_copy = duplicateSudoku(current_solution);
@@ -214,6 +269,28 @@ int* defineNumbersToInsert(int numbers_to_insert_amount, int* h_number_presence,
 	return numbers_to_insert;
 }
 
+
+int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presence, int row)
+{	
+	int* positions_to_insert = new int[numbers_to_insert_amount];
+
+	int i = 0;
+	int j = 0;
+
+	while(i < numbers_to_insert_amount)
+	{
+		if(h_element_presence[j] == 1)
+		{
+			printf("Pozycja do wstawienia: %d\n", j);
+			positions_to_insert[i] = j + 1;
+			i++;
+		}
+		j++;
+	}
+
+	return positions_to_insert;
+}
+
 int countEmptyElemsInRow(int row, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
@@ -221,6 +298,10 @@ int countEmptyElemsInRow(int row, int* d_current_solution)
 	int filled_elements = sumNumberPresenceInRow(d_number_presence, row);
 
 	int* numbersToInsert = defineNumbersToInsert(NN - filled_elements, h_number_presence, row);
+
+	int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
+	int* h_element_presence = copySudokuToHost(d_element_presence);
+	int* positions_to_insert = definePositionsToInsert(NN - filled_elements, h_element_presence, row);
 
 	printf("LICZBA ELEMENTÓW WYPEŁNIONYCH w rzędzie %d: %d\n", row + 1, filled_elements);
 
