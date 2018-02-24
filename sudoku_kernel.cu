@@ -6,6 +6,86 @@ void cudaErrorHandling(cudaError_t cudaStatus) {
 	}
 }
 
+
+__global__ void __sumNumberPresenceInRow(int* d_number_presence, int row)
+{
+	int idx = threadIdx.x;
+
+	printf("[IDX: %d]\n", idx);
+	// __syncthreads();
+
+	for (int i = 1 ; i <= NN / 2; i *= 2)
+	{
+		if (idx % (2 * i) == 0) {
+			// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			d_number_presence[idx + row*NN] += d_number_presence[idx + i + row*NN];
+			// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
+		}
+		else
+		{
+			// printf("[Thread %d] returning\n", idx);
+			return;
+		}
+		__syncthreads();
+	}
+
+	// if(idx == 0)
+		// d_number_presence[idx] += d_number_presence[idx + 128];
+}
+
+__global__ void __fillNumberPresenceArray(int* d_sudoku, int* d_number_presence)
+{
+	extern __shared__ int number_presence[];
+	int idx = blockDim.y*blockIdx.y + threadIdx.y;
+	int idy = blockDim.x*blockIdx.x + threadIdx.x;
+	// int index_1, index_2, index_3;
+	int k = SUD_SIZE*SUD_SIZE;
+
+	number_presence[idx * SUD_SIZE + idy] = 0;
+	number_presence[k + idx * SUD_SIZE + idy] = 0;
+	number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
+
+	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
+
+	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
+
+	__syncthreads();
+
+	if (d_sudoku[idx*SUD_SIZE + idy])
+	{
+		number_presence[idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs about number data[idx][idy] - 1 presence in row idx
+		number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
+		number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
+	}
+
+	__syncthreads();
+
+	d_number_presence[idx * SUD_SIZE + idy] = number_presence[idx * 9 + idy];
+	d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
+	d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
+	
+	__syncthreads();
+}
+
+int* fillNumberPresenceArray(int* d_sudoku) 
+{
+	int* d_number_presence;
+	int sharedMemorySize = 243 * sizeof(int);
+	dim3 dimBlock = dim3(9, 9, 1);
+	dim3 dimGrid = dim3(1);
+
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence, 243 * sizeof(int)));
+
+	__fillNumberPresenceArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence);
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	//displayNumberPresenceArray(d_number_presence);
+
+	return d_number_presence;
+}
+
 void displayHostArray(char* title, int* array, int N, int M)
 {
   printf("---------%s-----------\n", title);
@@ -44,7 +124,7 @@ int* copySudokuToHost(int* d_sudoku)
 	return h_sudoku;
 }
 
-int* copySudoku(int* sudoku)
+int* duplicateSudoku(int* sudoku)
 {
 	int* sudokuCopy = new int[NN*NN];
 	for(int i = 0; i < NN*NN; i++)
@@ -56,7 +136,7 @@ int* copySudoku(int* sudoku)
 
 int* insertRowToSolution(int row, int* current_solution, int* quiz)
 {
-	int* solution_copy = copySudoku(current_solution);
+	int* solution_copy = duplicateSudoku(current_solution);
 	for(int i = 0; i < NN; i ++)
 	{
 		solution_copy[row*NN + i] = quiz[row*NN + i];
@@ -64,14 +144,38 @@ int* insertRowToSolution(int row, int* current_solution, int* quiz)
 	return solution_copy;
 }
 
+void sumNumberPresenceInRow(int* d_number_presence, int row)
+{
+	int* summing_result = new int[243];
+	dim3 dimBlock2 = dim3(9, 1, 1);
+	dim3 dimGrid2 = dim3(1);
+
+	__sumNumberPresenceInRow <<<dimGrid2, dimBlock2>>> (d_number_presence, row);
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	cudaErrorHandling(cudaMemcpy(summing_result, d_number_presence, 243 * sizeof(int), cudaMemcpyDeviceToHost));
+
+	printf("A WIĘC DODAŁEM I O TO LICZBA ELEMENTÓW WYPEŁNIONYCH: %d", summing_result[row*NN]);
+}
+
+int countEmptyElemsInRow(int row, int* d_current_solution)
+{
+	int* d_number_presence = fillNumberPresenceArray(d_current_solution);
+
+	sumNumberPresenceInRow(d_number_presence, row);
+}
+
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 {
 	int* current_solution, *d_current_solution;
+	int empty_elems_in_row;
 	resolution* created_resolution = new resolution();
 
 	current_solution = insertRowToSolution(row, _current_solution, quiz);
 	
 	d_current_solution = copySudokuToDevice(current_solution);
+
+	empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
 	if(row == 8)
 	{
@@ -91,7 +195,7 @@ cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
   displayHostArray("RESOLUTION", empty_resolution, NN, NN);
 
 	final_resolution = createRowSolution(0, empty_resolution, h_sudoku_unsolved);
-	printf("Wynikow: %d", final_resolution -> n);
+	printf("Wynikow: %d\n", final_resolution -> n);
 
 	return cudaSuccess;
 }
