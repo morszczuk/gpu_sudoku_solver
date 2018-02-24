@@ -281,8 +281,8 @@ int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presen
 	{
 		if(h_element_presence[j] == 0)
 		{
-			printf("Pozycja do wstawienia: %d\n", j);
-			positions_to_insert[i] = j;
+			printf("Pozycja do wstawienia: %d\n", j % NN);
+			positions_to_insert[i] = j % NN;
 			i++;
 		}
 		j++;
