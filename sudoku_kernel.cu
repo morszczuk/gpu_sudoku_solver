@@ -203,6 +203,24 @@ int countEmptyElemsInRow(int row, int* d_current_solution)
 	return NN - filled_elements;
 }
 
+void createPermutations(int empty_elems_in_row)
+{
+	int* test = new int[empty_elems_in_row];
+	int myints[] = {1,2,3};
+
+	for(int i = 0; i < empty_elems_in_row; i ++)
+	{
+		test[i] = i;
+	}
+
+	printf("PERMUTUJEMY");
+
+	do
+	{
+		printf("%d | %d | %d\n", myints[0], myints[1], myints[2]);
+	} while (std::next_permutation(myints,myints+3));
+}
+
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 {
 	int* current_solution, *d_current_solution;
@@ -214,6 +232,8 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	d_current_solution = copySudokuToDevice(current_solution);
 
 	empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
+
+	createPermutations(empty_elems_in_row);
 
 	if(row == 8)
 	{
