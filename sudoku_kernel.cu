@@ -193,7 +193,7 @@ int sumNumberPresenceInRow(int* d_number_presence, int row)
 	return summing_result[row*NN];
 }
 
-int* defineNumbersToInsert(int numbers_to_insert_amount, int* d_number_presence, int row)
+int* defineNumbersToInsert(int numbers_to_insert_amount, int* h_number_presence, int row)
 {	
 	int* numbers_to_insert = new int[numbers_to_insert_amount];
 
@@ -202,7 +202,7 @@ int* defineNumbersToInsert(int numbers_to_insert_amount, int* d_number_presence,
 
 	while(i < numbers_to_insert_amount)
 	{
-		if(d_number_presence[j] == 1)
+		if(h_number_presence[j] == 1)
 		{
 			printf("O, dodaję element!!! Liczba do wstawienia: %d\n", j + 1);
 			numbers_to_insert[i] = j + 1;
