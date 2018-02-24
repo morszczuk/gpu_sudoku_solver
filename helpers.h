@@ -5,5 +5,4 @@
 #include <sstream>
 #include <time.h>
 
-#define SUD_SIZE 9
-#define NN 9
+void displayArray(char* title, int* array, int N, int M);
