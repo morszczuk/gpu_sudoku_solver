@@ -44,14 +44,6 @@ int* copySudokuToHost(int* d_sudoku)
 	return h_sudoku;
 }
 
-void insertRowToSolution(int row, int* current_solution, int* quiz)
-{
-	for(int i = 0; i < NN; i ++)
-	{
-		current_solution[row*NN + i] = quiz[row*NN + i];
-	}
-}
-
 int* copySudoku(int* sudoku)
 {
 	int* sudokuCopy = new int[NN*NN];
@@ -62,13 +54,24 @@ int* copySudoku(int* sudoku)
 	return sudokuCopy;
 }
 
+int* insertRowToSolution(int row, int* current_solution, int* quiz)
+{
+	int* solution_copy = copySudoku(current_solution);
+	for(int i = 0; i < NN; i ++)
+	{
+		solution_copy[row*NN + i] = quiz[row*NN + i];
+	}
+	return solution_copy;
+}
+
+
+
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 {
 	int* current_solution, *d_current_solution;
 	resolution* created_resolution = new resolution();
 
-	current_solution = copySudoku(_current_solution);
-	insertRowToSolution(row, current_solution, quiz);
+	current_solution = insertRowToSolution(row, _current_solution, quiz);
 
 	displayHostArray("SOLUTION WITH INSERTED ROW", current_solution, NN, NN);
 
