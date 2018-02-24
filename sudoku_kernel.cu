@@ -32,7 +32,7 @@ int* copySudokuToDevice(int* h_sudoku)
 
 	cudaErrorHandling(cudaMemcpy(d_sudoku, h_sudoku, NN * NN * sizeof(int), cudaMemcpyHostToDevice));
 
-	return d_sudoku
+	return d_sudoku;
 }
 
 resolution* createRowSolution(int row, int* current_solution)
