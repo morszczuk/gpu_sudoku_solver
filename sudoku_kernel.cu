@@ -406,6 +406,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 	int row = threadIdx.x % NN;
+	int col = threadIdx.x - (threadIdx.x % NN);
 	int rowStart = blockDim.x*blockIdx.x + row*NN;
 	int blockStart = blockDim.x*blockIdx.x;
 
@@ -418,7 +419,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	__syncthreads();
 
-	printf("IDX: %d | WARTOSC: %d | BLOCKSTART: %d | INDEKS DO WSTAIWENIA: %d\n", idx, d_alternative_solutions_one_array[idx], blockStart, blockStart + (threadIdx.x * NN) + d_alternative_solutions_one_array[idx] - 1);
+	printf("IDX: %d | WARTOSC: %d | BLOCKSTART: %d | INDEKS DO WSTAIWENIA: %d\n", idx, d_alternative_solutions_one_array[idx], blockStart, blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1);
 	if(d_alternative_solutions_one_array[idx] > 0)
 		d_number_presence_in_row[blockStart + threadIdx.x * NN + d_alternative_solutions_one_array[idx] - 1] += 1; //informs about number data[idx][idy] - 1 presence in column idy
 	//number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
