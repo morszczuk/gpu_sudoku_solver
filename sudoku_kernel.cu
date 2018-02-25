@@ -427,7 +427,7 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	if(threadIdx.x == 0)
 	{
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
-		// printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
+		printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
 	}
 
 }
@@ -464,7 +464,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 	__syncthreads();
 
 	if(threadIdx.x == 0)
-		if(d_number_presence_in_col[blockIdx.x*blockDim.x] != row*NN)
+		if(d_number_presence_in_col[blockIdx.x*blockDim.x] != (row+1)*NN)
 			d_alternative_solutions_correctness[blockIdx.x] = true;
 
 }
