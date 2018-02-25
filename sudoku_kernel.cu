@@ -460,6 +460,9 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	__syncthreads();
 
+	__sumNumberPresence(d_number_presence_in_col, 81);
+	__syncthreads();
+
 	if(d_number_presence_in_col[idx] > 1)
 		d_alternative_solutions_correctness[blockIdx.x] = true;
 
