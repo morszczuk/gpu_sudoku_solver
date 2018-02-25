@@ -412,13 +412,13 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	for (int i = 1; i <= size / 2; i *= 2)
 	{
 		if (threadIdx.x % (2 * i) == 0 && idx < blockDim.x*(blockIdx.x + 1) - 1) {
-			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+			// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
 			d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
-			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+			// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
 		}
 		else
 		{
-			printf("[Thread %d] returning\n", idx);
+			// printf("[Thread %d] returning\n", idx);
 			return;
 		}
 		__syncthreads();
