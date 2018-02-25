@@ -356,9 +356,9 @@ int** createPermutations(int empty_elems_in_row)
 		for(int j = 0; j < empty_elems_in_row; j++)
 		{
 			result[i][j] = permutations[j];
-			// printf("%d | ", permutations[j]);
+			printf("%d | ", permutations[j]);
 		}
-		// printf("\n");
+		printf("\n");
 		i++;
 	} while (std::next_permutation(permutations, permutations + empty_elems_in_row));
 
