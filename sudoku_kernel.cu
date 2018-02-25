@@ -392,7 +392,18 @@ int* combineSolutionsIntoOneArray(int n_factorial, int** alternative_solutions)
 __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_row)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
+	int row = threadIdx.x % NN;
+	int rowStart = blockDim.x*blockIdx.x + row*NN;
+
 	printf("Moje IDX: %d", idx);
+
+	d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
+
+	__syncthreads();
+
+	if(d_number_presence_in_row[idx] > 1)
+		d_alternative_solutions_correctness[blockIdx.x] = true;
+
 }
 
 bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_solutions_one_array)
@@ -467,7 +478,8 @@ cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
 {
   int* empty_resolution = new int [NN*NN];
 	resolution* final_resolution;
-  displayHostArray("RESOLUTION", empty_resolution, NN, NN);
+  displayHostArray("SUDOKU QUIZ", h_sudoku_unsolved, NN, NN);
+	displayHostArray("RESOLUTION", empty_resolution, NN, NN);
 
 	final_resolution = createRowSolution(0, empty_resolution, h_sudoku_unsolved);
 	printf("Wynikow: %d\n", final_resolution -> n);

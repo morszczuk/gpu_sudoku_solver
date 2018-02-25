@@ -6,7 +6,9 @@ int main(int argc, char* argv[])
   char filename_solved[] = "quizzes/arr_1_solved.txt";
   char filename_error[] = "quizzes/arr_1_with_error.txt";
 	char almost_solved[] = "quizzes/arr_1_almost_solved.txt";
-	int *h_sudoku_solved, *h_sudoku_unsolved, *h_sudoku_error, *h_sudoku_almost_solved;
+	char without_two[] = "quizzes/arr_1_without_two.txt";
+	
+	int *h_sudoku_solved, *h_sudoku_unsolved, *h_sudoku_error, *h_sudoku_almost_solved, *h_without_two;
 	int a =5;
 	
 	//RETRIEVING SUDOKU QUIZ
@@ -17,15 +19,16 @@ int main(int argc, char* argv[])
   
   h_sudoku_solved = readSudokuArray(filename_solved);
 	h_sudoku_almost_solved = readSudokuArray(almost_solved);
+	h_without_two = readSudokuArray(without_two);
 	
-  printArray(h_sudoku_unsolved, SUD_SIZE, SUD_SIZE);
-	printArray(h_sudoku_almost_solved, SUD_SIZE, SUD_SIZE);
+  // printArray(h_sudoku_unsolved, SUD_SIZE, SUD_SIZE);
+	// printArray(h_sudoku_almost_solved, SUD_SIZE, SUD_SIZE);
 
 	//STARTING TIME MEASURMENT
 	clock_t begin = clock();
 	
 	//SOLVING SUDOKU 
-	cudaErrorHandling(solveSudoku(h_sudoku_solved, h_sudoku_unsolved));
+	cudaErrorHandling(solveSudoku(h_sudoku_solved, h_without_two));
 
 	//ENDING TIME MEASURMENT
 	clock_t end = clock();
