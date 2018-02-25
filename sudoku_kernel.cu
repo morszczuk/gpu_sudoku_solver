@@ -402,7 +402,37 @@ int* combineSolutionsIntoOneArray(int n_factorial, int** alternative_solutions)
 	return solutions_array;
 }
 
-__global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_row)
+__device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
+{
+	int idx = blockDim.x*blockIdx.x + threadIdx.x;
+
+	// printf("[IDX: %d]\n", idx);
+	__syncthreads();
+
+	for (int i = 1; i <= size / 2; i *= 2)
+	{
+		if (threadIdx.x % (2 * i) == 0) {
+			printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+			d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
+			printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+		}
+		else
+		{
+			printf("[Thread %d] returning\n", idx);
+			return;
+		}
+		__syncthreads();
+	}
+
+	if(threadIdx.x == 0)
+	{
+		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
+		printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
+	}
+
+}
+
+__global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_col)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 	int row = threadIdx.x % NN;
@@ -412,7 +442,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	// printf("Moje IDX: %d", idx);
 
-	d_number_presence_in_row[idx] = 0;
+	d_number_presence_in_col[idx] = 0;
 
 	if(threadIdx.x == 0)
 		d_alternative_solutions_correctness[blockIdx.x] = false;
@@ -422,15 +452,15 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 	printf("IDX: %d | WARTOSC: %d | COL: %d | INDEKS DO WSTAIWENIA: %d\n", idx, d_alternative_solutions_one_array[idx], col, blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1);
 	if(d_alternative_solutions_one_array[idx] > 0)
 	{
-		printf("AKTUALNA WARTOSC: %d\n", d_number_presence_in_row[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1]);
-		d_number_presence_in_row[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1] += 1; //informs about number data[idx][idy] - 1 presence in column idy
+		printf("AKTUALNA WARTOSC: %d\n", d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1]);
+		d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1] += 1; //informs about number data[idx][idy] - 1 presence in column idy
 	}
 	//number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
 	//d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
 
 	__syncthreads();
 
-	if(d_number_presence_in_row[idx] > 1)
+	if(d_number_presence_in_col[idx] > 1)
 		d_alternative_solutions_correctness[blockIdx.x] = true;
 
 }
