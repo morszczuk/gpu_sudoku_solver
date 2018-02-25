@@ -472,17 +472,20 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	int** alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
 	// bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(alternative_solutions);
 	current_solution = alternative_solutions[0];
+	printf("TUTAJ DOJDZIEMY? 7\n");
 	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
 	// createPermutations(sum_empty_elems_in_row);
 
 	if(row == 8)
 	{
+		printf("TUTAJ DOJDZIEMY? 8\n");
 		created_resolution -> n = 1;
 		created_resolution -> resolutions = current_solution;
 		return created_resolution;
 	} else
 	{
+		printf("TUTAJ DOJDZIEMY? 9\n");
 		return createRowSolution(row + 1, current_solution, quiz);
 	}
 }
