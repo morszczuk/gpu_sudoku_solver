@@ -449,10 +449,10 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	__syncthreads();
 
-	printf("IDX: %d | WARTOSC: %d | COL: %d | INDEKS DO WSTAIWENIA: %d\n", idx, d_alternative_solutions_one_array[idx], col, blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1);
+	// printf("IDX: %d | WARTOSC: %d | COL: %d | INDEKS DO WSTAIWENIA: %d\n", idx, d_alternative_solutions_one_array[idx], col, blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1);
 	if(d_alternative_solutions_one_array[idx] > 0)
 	{
-		printf("AKTUALNA WARTOSC: %d\n", d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1]);
+		// printf("AKTUALNA WARTOSC: %d\n", d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1]);
 		d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1] += 1; //informs about number data[idx][idy] - 1 presence in column idy
 	}
 	//number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
