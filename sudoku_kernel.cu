@@ -446,13 +446,11 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 	cudaErrorHandling(cudaMemcpy(h_alternative_solutions_correctness, d_alternative_solutions_correctness, n_factorial * sizeof(bool), cudaMemcpyDeviceToHost));
 	for(int i = 0; i < n_factorial; i++)
 	{
-		printf("\n\nRozwiazanie %d: ", i);
+		printf("\nRozwiazanie %d: ", i);
 		if(h_alternative_solutions_correctness[i])
 			printf("ZLE\n");
 		else
 			printf("OK\n");
-			
-		
 	}
 }
 
