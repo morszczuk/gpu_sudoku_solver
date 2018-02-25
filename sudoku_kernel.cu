@@ -410,6 +410,10 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	// printf("Moje IDX: %d", idx);
 
+	d_number_presence_in_row[idx] = 0;
+
+	__syncthreads();
+
 	d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
 
 	__syncthreads();
