@@ -359,8 +359,8 @@ int* insertPossibleSolutionToRow(int* h_current_solution, int num_of_elements_to
 	{
 		possibleSolution[NN*row + positions_to_insert[i]] = numbers_to_insert[permutation[i]];
 	}
-	printf("ALTERNATYWNE ROZWIAZANIE STWORZONE!!!!\n");
-	displayHostArray("ALTERNATYWNE ROZWWIAZANIE", possibleSolution, NN, NN);
+	// printf("ALTERNATYWNE ROZWIAZANIE STWORZONE!!!!\n");
+	// displayHostArray("ALTERNATYWNE ROZWWIAZANIE", possibleSolution, NN, NN);
 
 	return possibleSolution;
 }
