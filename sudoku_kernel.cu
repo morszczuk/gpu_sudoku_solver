@@ -423,7 +423,8 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 {
 	int* d_alternative_solutions_one_array = copyArrayToDevice(alternative_solutions_one_array, n_factorial * NN * NN);
 	int* d_number_presence_in_row;
-	bool* d_alternative_solutions_correctness;
+	bool* d_alternative_solutions_correctness, *h_alternative_solutions_correctness;
+	h_alternative_solutions_correctness = new bool[n_factorial];
 	
 	
 	cudaErrorHandling(cudaMalloc((void **)&d_alternative_solutions_correctness, n_factorial * sizeof(bool)));
@@ -434,6 +435,17 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 
 	__checkAlternativeSolutionsCorrectness <<<dimGrid, dimBlock>>>(d_alternative_solutions_one_array, d_alternative_solutions_correctness, d_number_presence_in_row);
 	cudaErrorHandling(cudaDeviceSynchronize());
+
+	cudaErrorHandling(cudaMemcpy(h_alternative_solutions_correctness, d_alternative_solutions_correctness, n_factorial * sizeof(bool), cudaMemcpyDeviceToHost));
+	for(int i = 0; i < n_factorial; i++)
+	{
+		printf("Rozwiazanie %d: ", i);
+		if(h_alternative_solutions_correctness[i])
+			printf("OK\n");
+		else
+			printf("ZLE\n");
+		
+	}
 }
 
 int** createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
@@ -443,24 +455,16 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 
 	int* h_number_presence = copySudokuToHost(d_number_presence);
 	int* h_element_presence = copySudokuToHost(d_element_presence);
-	printf("TUTAJ DOJDZIEMY? 0\n");
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
 	if(num_of_elements_to_insert > 0)
 	{
-		printf("TUTAJ DOJDZIEMY? 0.1\n");
 		int n_factorial = factorial(num_of_elements_to_insert);
-		printf("TUTAJ DOJDZIEMY? 1\n");
 		int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
 		int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
-		printf("TUTAJ DOJDZIEMY? 2\n");
 		int** rowPermutations = createPermutations(num_of_elements_to_insert);
-		printf("TUTAJ DOJDZIEMY? 3\n");
 		int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
-		printf("TUTAJ DOJDZIEMY? 4\n");
 		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
-		printf("TUTAJ DOJDZIEMY? 5\n");
 		bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(n_factorial, alternative_solutions_one_array);
-		printf("TUTAJ DOJDZIEMY? 6\n");
 		return alternative_solutions;
 	} else
 	{
