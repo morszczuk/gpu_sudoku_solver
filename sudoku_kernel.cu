@@ -445,9 +445,10 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 	{
 		printf("\n\nRozwiazanie %d: ", i);
 		if(h_alternative_solutions_correctness[i])
-			printf("OK\n");
-		else
 			printf("ZLE\n");
+		else
+			printf("OK\n");
+			
 		
 	}
 }
