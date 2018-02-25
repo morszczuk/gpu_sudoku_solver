@@ -427,15 +427,15 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	if(threadIdx.x == 0)
 	{
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
-		printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
+		// printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
 	}
 
 }
 
-__global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_col)
+__global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_col, int row)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
-	int row = threadIdx.x % NN;
+	// int row = threadIdx.x % NN;
 	int col = threadIdx.x - ((threadIdx.x / NN)*NN);
 	int rowStart = blockDim.x*blockIdx.x + row*NN;
 	int blockStart = blockDim.x*blockIdx.x;
@@ -463,12 +463,13 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 	__sumNumberPresence(d_number_presence_in_col, 81);
 	__syncthreads();
 
-	if(d_number_presence_in_col[idx] > 1)
-		d_alternative_solutions_correctness[blockIdx.x] = true;
+	if(threadIdx.x == 0)
+		if(d_number_presence_in_col[blockIdx.x*blockDim.x] != row*NN)
+			d_alternative_solutions_correctness[blockIdx.x] = true;
 
 }
 
-bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_solutions_one_array)
+bool** checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* alternative_solutions_one_array)
 {
 	int* d_alternative_solutions_one_array = copyArrayToDevice(alternative_solutions_one_array, n_factorial * NN * NN);
 	int* d_number_presence_in_row;
@@ -482,7 +483,7 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 	dim3 dimBlock = dim3(81, 1, 1);
 	dim3 dimGrid = dim3(n_factorial);
 
-	__checkAlternativeSolutionsCorrectness <<<dimGrid, dimBlock>>>(d_alternative_solutions_one_array, d_alternative_solutions_correctness, d_number_presence_in_row);
+	__checkAlternativeSolutionsCorrectness <<<dimGrid, dimBlock>>>(d_alternative_solutions_one_array, d_alternative_solutions_correctness, d_number_presence_in_row, row);
 	cudaErrorHandling(cudaDeviceSynchronize());
 
 	cudaErrorHandling(cudaMemcpy(h_alternative_solutions_correctness, d_alternative_solutions_correctness, n_factorial * sizeof(bool), cudaMemcpyDeviceToHost));
@@ -512,7 +513,7 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 		int** rowPermutations = createPermutations(num_of_elements_to_insert);
 		int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
 		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
-		bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(n_factorial, alternative_solutions_one_array);
+		bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
 		return alternative_solutions;
 	} else
 	{
