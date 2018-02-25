@@ -422,6 +422,7 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 	int* d_number_presence_in_row;
 	bool* d_alternative_solutions_correctness;
 	
+	printf("TUTAJ DOJDZIEMY? 1");
 	cudaErrorHandling(cudaMalloc((void **)&d_alternative_solutions_correctness, n_factorial * sizeof(bool)));
 	cudaErrorHandling(cudaMalloc((void **)&d_number_presence_in_row, n_factorial * NN * NN * sizeof(int)));
 
