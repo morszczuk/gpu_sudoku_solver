@@ -422,7 +422,7 @@ bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_so
 	int* d_number_presence_in_row;
 	bool* d_alternative_solutions_correctness;
 	
-	printf("TUTAJ DOJDZIEMY? 1");
+	
 	cudaErrorHandling(cudaMalloc((void **)&d_alternative_solutions_correctness, n_factorial * sizeof(bool)));
 	cudaErrorHandling(cudaMalloc((void **)&d_number_presence_in_row, n_factorial * NN * NN * sizeof(int)));
 
@@ -443,12 +443,12 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
 	int n_factorial = factorial(num_of_elements_to_insert);
-
+	printf("TUTAJ DOJDZIEMY? 1");
 	int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
 	int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
-
+	printf("TUTAJ DOJDZIEMY? 2");
 	int** rowPermutations = createPermutations(num_of_elements_to_insert);
-
+	printf("TUTAJ DOJDZIEMY? 3");
 	int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
 
 	int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
