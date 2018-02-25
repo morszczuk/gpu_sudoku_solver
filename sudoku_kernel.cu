@@ -440,15 +440,16 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 
 	int* h_number_presence = copySudokuToHost(d_number_presence);
 	int* h_element_presence = copySudokuToHost(d_element_presence);
-	printf("TUTAJ DOJDZIEMY? 0");
+	printf("TUTAJ DOJDZIEMY? 0\n");
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
+	printf("TUTAJ DOJDZIEMY? 0.1\n");
 	int n_factorial = factorial(num_of_elements_to_insert);
-	printf("TUTAJ DOJDZIEMY? 1");
+	printf("TUTAJ DOJDZIEMY? 1\n");
 	int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
 	int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
-	printf("TUTAJ DOJDZIEMY? 2");
+	printf("TUTAJ DOJDZIEMY? 2\n");
 	int** rowPermutations = createPermutations(num_of_elements_to_insert);
-	printf("TUTAJ DOJDZIEMY? 3");
+	printf("TUTAJ DOJDZIEMY? 3\n");
 	int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
 
 	int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
