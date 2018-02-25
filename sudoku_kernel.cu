@@ -24,15 +24,20 @@ void displayHostArray(char* title, int* array, int N, int M)
   printf("------------------------------\n");
 }
 
+int* copyArrayToDevice(int* h_array, int size)
+{
+	int* d_array;
+	
+	cudaErrorHandling(cudaMalloc((void **)&d_array, size * sizeof(int)));
+
+	cudaErrorHandling(cudaMemcpy(d_array, h_array, size * sizeof(int), cudaMemcpyHostToDevice));
+
+	return d_array;
+}
+
 int* copySudokuToDevice(int* h_sudoku)
 {
-	int* d_sudoku;
-	
-	cudaErrorHandling(cudaMalloc((void **)&d_sudoku, NN * NN * sizeof(int)));
-
-	cudaErrorHandling(cudaMemcpy(d_sudoku, h_sudoku, NN * NN * sizeof(int), cudaMemcpyHostToDevice));
-
-	return d_sudoku;
+	return copyArrayToDevice(h_sudoku, NN * NN);
 }
 
 int* copySudokuToHost(int* d_sudoku)
@@ -373,6 +378,39 @@ int** createAlternativeSolutions(int* h_current_solution, int num_of_elements_to
 	return alternative_solutions;
 }
 
+int* combineSolutionsIntoOneArray(int n_factorial, int** alternative_solutions)
+{
+	int* solutions_array = new int[n_factorial*NN*NN];
+
+	for(int i = 0; i < n_factorial; i ++)
+		for(int j = 0; j < NN*NN; j++)
+			solutions_array[j + i*NN*NN] = alternative_solutions[i][j];
+
+	return solutions_array;
+}
+
+__global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_row)
+{
+	int idx = blockDim.x*blockIdx.x + threadIdx.x;
+	printf("Moje IDX: %d", idx);
+}
+
+bool** checkAlternativeSolutionsCorrectness(int n_factorial, int* alternative_solutions_one_array)
+{
+	int* d_alternative_solutions_one_array = copyArrayToDevice(alternative_solutions_one_array, n_factorial * NN * NN);
+	int* d_number_presence_in_row;
+	bool* d_alternative_solutions_correctness;
+	
+	cudaErrorHandling(cudaMalloc((void **)&d_alternative_solutions_correctness, n_factorial * sizeof(bool)));
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence_in_row, n_factorial * NN * NN * sizeof(int)));
+
+	dim3 dimBlock = dim3(81, 1, 1);
+	dim3 dimGrid = dim3(n_factorial);
+
+	__checkAlternativeSolutionsCorrectness <<<dimGrid, dimBlock>>>(d_alternative_solutions_one_array, d_alternative_solutions_correctness, d_number_presence_in_row);
+	cudaErrorHandling(cudaDeviceSynchronize());
+}
+
 int** createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
@@ -382,13 +420,19 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 	int* h_element_presence = copySudokuToHost(d_element_presence);
 
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
+	int n_factorial = factorial(num_of_elements_to_insert);
 
 	int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
 	int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
 
 	int** rowPermutations = createPermutations(num_of_elements_to_insert);
 
-	return createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
+	int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
+
+	int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
+	bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(n_factorial, alternative_solutions_one_array);
+
+	return alternative_solutions;
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
@@ -402,6 +446,7 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	d_current_solution = copySudokuToDevice(current_solution);
 
 	int** alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
+	// bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(alternative_solutions);
 	current_solution = alternative_solutions[0];
 	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
