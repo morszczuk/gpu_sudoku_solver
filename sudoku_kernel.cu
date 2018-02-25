@@ -495,6 +495,8 @@ bool* checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* altern
 		else
 			printf("OK\n");
 	}
+
+	return h_alternative_solutions_correctness;
 }
 
 resolution* chooseCorrectSolution(int n_factorial, int** alternative_solutions, bool* alternative_solutions_correctness)
