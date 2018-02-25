@@ -524,7 +524,7 @@ resolution* chooseCorrectSolution(int n_factorial, int** alternative_solutions, 
 	return only_correct_solutions;
 }
 
-int** createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
+resolution* createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
 	int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
@@ -543,13 +543,139 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 		bool* alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
 		resolution* correct_solutions = chooseCorrectSolution(n_factorial, alternative_solutions, alternative_solutions_correctness);
 		printf("PRAWIDLOWYCH ROZWIAZAN: %d\n", correct_solutions -> n);
-		return alternative_solutions;
+		return correct_solutions;
 	} else
 	{
+		resolution* one_resolution = new resolution();
 		int **h_result = new int*[1];
 		h_result[0] = h_current_solution;
-		return h_result;
+		one_resolution -> n = 1;
+		one_resolution -> resolutions = h_result;
+		return one_resolution;
 	}
+}
+
+__global__ void __sumNumberPresenceArray(int* d_number_presence, int size)
+{
+	int idx = blockDim.x*blockIdx.x + threadIdx.x;
+
+	// printf("[IDX: %d]\n", idx);
+	__syncthreads();
+
+	for (int i = 1; i <= size / 2; i *= 2)
+	{
+		if (idx % (2 * i) == 0) {
+			// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
+			d_number_presence[idx] += d_number_presence[idx + i];
+			// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
+		}
+		else
+		{
+			// printf("[Thread %d] returning\n", idx);
+			return;
+		}
+		__syncthreads();
+	}
+
+	if(idx == 0)
+		d_number_presence[idx] += d_number_presence[idx + 128];
+}
+
+void sumNumberPresenceArray(int* d_number_presence)
+{
+	dim3 dimBlock2 = dim3(243, 1, 1);
+	dim3 dimGrid2 = dim3(1);
+
+	__sumNumberPresenceArray <<<dimGrid2, dimBlock2>>> (d_number_presence, 243);
+	cudaErrorHandling(cudaDeviceSynchronize());
+}
+
+__global__ void __fillFullNumberPresenceArray(int* d_sudoku, int* d_number_presence)
+{
+	extern __shared__ int number_presence[];
+	int idx = blockDim.y*blockIdx.y + threadIdx.y;
+	int idy = blockDim.x*blockIdx.x + threadIdx.x;
+	// int index_1, index_2, index_3;
+	int k = SUD_SIZE*SUD_SIZE;
+
+	number_presence[idx * SUD_SIZE + idy] = 0;
+	number_presence[k + idx * SUD_SIZE + idy] = 0;
+	number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
+
+	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
+	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
+
+	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
+
+	__syncthreads();
+
+	if (d_sudoku[idx*SUD_SIZE + idy])
+	{
+		number_presence[idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs about number data[idx][idy] - 1 presence in row idx
+		number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
+		number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
+	}
+
+	__syncthreads();
+
+	d_number_presence[idx * SUD_SIZE + idy] = number_presence[idx * 9 + idy];
+	d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
+	d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
+	
+	__syncthreads();
+}
+
+int* fillNumberPresenceArray(int* d_sudoku) 
+{
+	int* d_number_presence;
+	int sharedMemorySize = 243 * sizeof(int);
+	dim3 dimBlock = dim3(9, 9, 1);
+	dim3 dimGrid = dim3(1);
+
+	cudaErrorHandling(cudaMalloc((void **)&d_number_presence, 243 * sizeof(int)));
+
+	__fillFullNumberPresenceArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence);
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	//displayNumberPresenceArray(d_number_presence);
+
+	return d_number_presence;
+}
+
+bool defineIfSudokuIsSolved(int* d_number_presence_summed)
+{
+	int* result = new int[1];
+
+	cudaErrorHandling(cudaMemcpy(result, d_number_presence_summed, sizeof(int), cudaMemcpyDeviceToHost));
+	cudaErrorHandling(cudaDeviceSynchronize());
+
+	printf("---------- FINAL RESULT!!! ------\n");
+	printf("SUMA: %d\n", result[0]);
+	if(result[0] == 243)
+	{
+		printf("Sudoku jest rozwiązane!\n");
+		return true;
+	} else
+	{
+		printf("Sudoku nie jest rozwiązane! :( \n");
+		return false;
+	}
+}
+
+bool checkIfSudokuIsSolved(int* h_sudoku)
+{
+	int* d_number_presence;
+	bool isSudokuSolved;
+	int* d_sudoku = copySudokuToDevice(h_sudoku);
+
+	d_number_presence = fillNumberPresenceArray(d_sudoku);
+
+	sumNumberPresenceArray(d_number_presence);
+
+	isSudokuSolved = defineIfSudokuIsSolved(d_number_presence);
+
+	return isSudokuSolved;
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
@@ -563,9 +689,9 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	printf("TUTAJ DOJDZIEMY? -1.1\n");
 	d_current_solution = copySudokuToDevice(current_solution);
 	printf("TUTAJ DOJDZIEMY? -1.2\n");
-	int** alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
+	resolution* alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
 	// bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(alternative_solutions);
-	current_solution = alternative_solutions[0];
+	current_solution = alternative_solutions->resolutions[0];
 	printf("TUTAJ DOJDZIEMY? 7\n");
 	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
@@ -573,10 +699,15 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 
 	if(row == 8)
 	{
-		printf("TUTAJ DOJDZIEMY? 8\n");
-		created_resolution -> n = 1;
-		created_resolution -> resolutions = alternative_solutions;
-		return created_resolution;
+		for(int i = 0; i < alternative_solutions -> n; i++)
+		{
+			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
+				printf("CALUTKIE SUDOKU NA POZYCJI %d POPRAWNE!!!\n", i);
+		}
+		
+		// created_resolution -> n = 1;
+		// created_resolution -> resolutions = alternative_solutions;
+		return alternative_solutions;
 	} else
 	{
 		printf("TUTAJ DOJDZIEMY? 9\n");
