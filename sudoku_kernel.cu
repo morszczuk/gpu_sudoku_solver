@@ -419,7 +419,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 	__syncthreads();
 
 	if(d_alternative_solutions_one_array[idx] > 0)
-		d_number_presence_in_row[blockStart + threadIdx.x * NN + d_alternative_solutions_one_array[idx] - 1] = 1; //informs about number data[idx][idy] - 1 presence in column idy
+		d_number_presence_in_row[blockStart + threadIdx.x * NN + d_alternative_solutions_one_array[idx] - 1] += 1; //informs about number data[idx][idy] - 1 presence in column idy
 	//number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
 	//d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
 
