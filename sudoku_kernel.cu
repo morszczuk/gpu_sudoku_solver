@@ -440,7 +440,7 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 
 	int* h_number_presence = copySudokuToHost(d_number_presence);
 	int* h_element_presence = copySudokuToHost(d_element_presence);
-
+	printf("TUTAJ DOJDZIEMY? 0");
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
 	int n_factorial = factorial(num_of_elements_to_insert);
 	printf("TUTAJ DOJDZIEMY? 1");
