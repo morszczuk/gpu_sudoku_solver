@@ -241,11 +241,14 @@ int* fillElementPresenceInRowsArray(int* d_sudoku)
 
 int* insertRowToSolution(int row, int* current_solution, int* quiz)
 {
+	printf("TUTAJ DOJDZIEMY? -1.0.1\n");
 	int* solution_copy = duplicateSudoku(current_solution);
+	printf("TUTAJ DOJDZIEMY? -1.0.2\n");
 	for(int i = 0; i < NN; i ++)
 	{
 		solution_copy[row*NN + i] = quiz[row*NN + i];
 	}
+	printf("TUTAJ DOJDZIEMY? -1.0.3\n");
 	return solution_copy;
 }
 
