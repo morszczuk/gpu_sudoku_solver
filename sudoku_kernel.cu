@@ -445,21 +445,29 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 	int* h_element_presence = copySudokuToHost(d_element_presence);
 	printf("TUTAJ DOJDZIEMY? 0\n");
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
-	printf("TUTAJ DOJDZIEMY? 0.1\n");
-	int n_factorial = factorial(num_of_elements_to_insert);
-	printf("TUTAJ DOJDZIEMY? 1\n");
-	int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
-	int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
-	printf("TUTAJ DOJDZIEMY? 2\n");
-	int** rowPermutations = createPermutations(num_of_elements_to_insert);
-	printf("TUTAJ DOJDZIEMY? 3\n");
-	int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
-	printf("TUTAJ DOJDZIEMY? 4\n");
-	int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
-	printf("TUTAJ DOJDZIEMY? 5\n");
-	bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(n_factorial, alternative_solutions_one_array);
-	printf("TUTAJ DOJDZIEMY? 6\n");
-	return alternative_solutions;
+	if(num_of_elements_to_insert > 0)
+	{
+		printf("TUTAJ DOJDZIEMY? 0.1\n");
+		int n_factorial = factorial(num_of_elements_to_insert);
+		printf("TUTAJ DOJDZIEMY? 1\n");
+		int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
+		int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
+		printf("TUTAJ DOJDZIEMY? 2\n");
+		int** rowPermutations = createPermutations(num_of_elements_to_insert);
+		printf("TUTAJ DOJDZIEMY? 3\n");
+		int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
+		printf("TUTAJ DOJDZIEMY? 4\n");
+		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
+		printf("TUTAJ DOJDZIEMY? 5\n");
+		bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(n_factorial, alternative_solutions_one_array);
+		printf("TUTAJ DOJDZIEMY? 6\n");
+		return alternative_solutions;
+	} else
+	{
+		int **h_result = new int*[1];
+		h_result[0] = h_current_solution;
+		return h_result;
+	}
 }
 
 resolution* createRowSolution(int row, int* _current_solution, int* quiz)
