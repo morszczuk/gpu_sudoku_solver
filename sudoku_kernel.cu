@@ -451,10 +451,11 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 	int** rowPermutations = createPermutations(num_of_elements_to_insert);
 	printf("TUTAJ DOJDZIEMY? 3\n");
 	int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
-
+	printf("TUTAJ DOJDZIEMY? 4\n");
 	int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
+	printf("TUTAJ DOJDZIEMY? 5\n");
 	bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(n_factorial, alternative_solutions_one_array);
-
+	printf("TUTAJ DOJDZIEMY? 6\n");
 	return alternative_solutions;
 }
 
