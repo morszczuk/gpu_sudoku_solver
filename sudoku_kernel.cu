@@ -408,7 +408,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 	int row = threadIdx.x % NN;
 	int rowStart = blockDim.x*blockIdx.x + row*NN;
 
-	printf("Moje IDX: %d", idx);
+	// printf("Moje IDX: %d", idx);
 
 	d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
 
