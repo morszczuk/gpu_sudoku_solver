@@ -467,9 +467,9 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	printf("TUTAJ DOJDZIEMY? -1\n");
 
 	current_solution = insertRowToSolution(row, _current_solution, quiz);
-	
+	printf("TUTAJ DOJDZIEMY? -1.1\n");
 	d_current_solution = copySudokuToDevice(current_solution);
-
+	printf("TUTAJ DOJDZIEMY? -1.2\n");
 	int** alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
 	// bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(alternative_solutions);
 	current_solution = alternative_solutions[0];
