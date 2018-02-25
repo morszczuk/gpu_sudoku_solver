@@ -469,7 +469,7 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 }
 
-bool** checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* alternative_solutions_one_array)
+bool* checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* alternative_solutions_one_array)
 {
 	int* d_alternative_solutions_one_array = copyArrayToDevice(alternative_solutions_one_array, n_factorial * NN * NN);
 	int* d_number_presence_in_row;
@@ -497,6 +497,31 @@ bool** checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* alter
 	}
 }
 
+resolution* chooseCorrectSolution(int n_factorial, int** alternative_solutions, bool* alternative_solutions_correctness)
+{
+	resolution* only_correct_solutions = new resolution();
+	int number_of_correct = 0;
+
+	for(int i = 0; i < n_factorial; i++)
+		if(!alternative_solutions_correctness[i])
+			number_of_correct++;
+
+	int** correct_solutions_arr = new int*[number_of_correct];
+	
+	int k = 0;
+	for(int i = 0; i < n_factorial; i++)
+		if(!alternative_solutions_correctness[i])
+		{
+			correct_solutions_arr[k] = alternative_solutions[i];
+			k++;
+		}
+	
+	only_correct_solutions -> n = number_of_correct;
+	only_correct_solutions -> resolutions = correct_solutions_arr;
+
+	return only_correct_solutions;
+}
+
 int** createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
@@ -513,7 +538,9 @@ int** createAlternativeSolutions(int row, int* h_current_solution, int* d_curren
 		int** rowPermutations = createPermutations(num_of_elements_to_insert);
 		int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
 		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
-		bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
+		bool* alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
+		resolution* correct_solutions = chooseCorrectSolution(n_factorial, alternative_solutions, alternative_solutions_correctness);
+		printf("PRAWIDLOWYCH ROZWIAZAN: %d\n", correct_solutions -> n);
 		return alternative_solutions;
 	} else
 	{
@@ -546,7 +573,7 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	{
 		printf("TUTAJ DOJDZIEMY? 8\n");
 		created_resolution -> n = 1;
-		created_resolution -> resolutions = current_solution;
+		created_resolution -> resolutions = alternative_solutions;
 		return created_resolution;
 	} else
 	{

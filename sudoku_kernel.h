@@ -6,7 +6,7 @@
 
 struct resolution {
   int n;
-  int* resolutions;
+  int** resolutions;
 };
 
 void displayHostArray(char* title, int* array, int N, int M);
