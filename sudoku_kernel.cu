@@ -6,6 +6,16 @@ void cudaErrorHandling(cudaError_t cudaStatus) {
 	}
 }
 
+int* newArrayWithZero(int N, int M)
+{
+	int* empty_array = new int [N*M];
+
+	for(int i = 0; i < N*M; i++)
+		empty_array[i] = 0;
+
+	return empty_array;
+}
+
 void displayHostArray(char* title, int* array, int N, int M)
 {
   printf("---------%s-----------\n", title);
@@ -476,7 +486,7 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 
 cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
 {
-  int* empty_resolution = new int [NN*NN];
+  int* empty_resolution = newArrayWithZero(NN, NN);
 	resolution* final_resolution;
   displayHostArray("SUDOKU QUIZ", h_sudoku_unsolved, NN, NN);
 	displayHostArray("RESOLUTION", empty_resolution, NN, NN);
