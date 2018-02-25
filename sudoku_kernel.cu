@@ -412,6 +412,9 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	d_number_presence_in_row[idx] = 0;
 
+	if(threadIdx.x == 0)
+		d_alternative_solutions_correctness[blockIdx.x] = false;
+
 	__syncthreads();
 
 	d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
