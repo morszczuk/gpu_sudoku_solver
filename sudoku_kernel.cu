@@ -447,7 +447,7 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	{
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 80];
-		printf("FINALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
+		// printf("FINALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 	}
 
 }
