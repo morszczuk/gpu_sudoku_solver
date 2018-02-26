@@ -563,6 +563,8 @@ resolution* createAlternativeSolutions(int row, int* h_current_solution, int* d_
 		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
 		bool* alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
 		resolution* correct_solutions = chooseCorrectSolution(n_factorial, alternative_solutions, alternative_solutions_correctness);
+		cudaFree(d_number_presence);
+		cudaFree(d_element_presence);
 		// printf("PRAWIDLOWYCH ROZWIAZAN: %d\n", correct_solutions -> n);
 		return correct_solutions;
 	} else
@@ -572,6 +574,8 @@ resolution* createAlternativeSolutions(int row, int* h_current_solution, int* d_
 		h_result[0] = h_current_solution;
 		one_resolution -> n = 1;
 		one_resolution -> resolutions = h_result;
+		cudaFree(d_number_presence);
+		cudaFree(d_element_presence);
 		return one_resolution;
 	}
 }
@@ -695,6 +699,8 @@ bool checkIfSudokuIsSolved(int* h_sudoku)
 	sumNumberPresenceArray(d_number_presence);
 
 	isSudokuSolved = defineIfSudokuIsSolved(d_number_presence);
+
+	cudaFree(d_number_presence);
 
 	return isSudokuSolved;
 }
