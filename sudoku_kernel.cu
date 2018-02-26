@@ -424,6 +424,24 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 			}
 			__syncthreads();
 		}
+	} else if(threadIdx.x < 80)
+	{
+		int id = threadIdx.x - 64;
+		for(int i = 1; i <= 8; i *= 2)
+		{
+			if (id % (2 * i) == 0) {
+				printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+				d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
+				printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+			}
+			else
+			{
+				// printf("[Thread %d] returning\n", idx);
+				return;
+			}
+			__syncthreads();
+		}
+
 	}
 
 	// for (int i = 1; i <= size / 2; i *= 2)
@@ -444,7 +462,8 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	__syncthreads();
 	if(threadIdx.x == 0)
 	{
-		// d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
+		printf("WYNIK przed dodaniem w komórce 0: %d\n", d_number_presence_in_col[idx]);
+		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
 		// printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
 		printf("AKTUALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 	}
