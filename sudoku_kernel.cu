@@ -445,7 +445,7 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	}
 
 	__syncthreads();
-	
+
 	if(threadIdx.x == 0)
 	{
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
@@ -706,16 +706,12 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	int* current_solution, *d_current_solution;
 	int sum_empty_elems_in_row;
 	resolution* created_resolution = new resolution();
-	printf("TUTAJ DOJDZIEMY? -1\n");
 
 	current_solution = insertRowToSolution(row, _current_solution, quiz);
-	printf("TUTAJ DOJDZIEMY? -1.1\n");
 	d_current_solution = copySudokuToDevice(current_solution);
-	printf("TUTAJ DOJDZIEMY? -1.2\n");
 	resolution* alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
 	// bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(alternative_solutions);
 	current_solution = alternative_solutions->resolutions[0];
-	printf("TUTAJ DOJDZIEMY? 7\n");
 	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
 
 	// createPermutations(sum_empty_elems_in_row);
@@ -725,7 +721,10 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 		for(int i = 0; i < alternative_solutions -> n; i++)
 		{
 			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
+			{
 				printf("CALUTKIE SUDOKU NA POZYCJI %d POPRAWNE!!!\n", i);
+				displayHostArray("FINALNE ROZWIAZANIE", alternative_solutions->resolutions[i], NN, NN);
+			}
 		}
 		
 		// created_resolution -> n = 1;
