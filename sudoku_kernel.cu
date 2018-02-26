@@ -241,14 +241,11 @@ int* fillElementPresenceInRowsArray(int* d_sudoku)
 
 int* insertRowToSolution(int row, int* current_solution, int* quiz)
 {
-	printf("TUTAJ DOJDZIEMY? -1.0.1\n");
 	int* solution_copy = duplicateSudoku(current_solution);
-	printf("TUTAJ DOJDZIEMY? -1.0.2\n");
 	for(int i = 0; i < NN; i ++)
 	{
 		solution_copy[row*NN + i] = quiz[row*NN + i];
 	}
-	printf("TUTAJ DOJDZIEMY? -1.0.3\n");
 	return solution_copy;
 }
 
@@ -277,7 +274,7 @@ int* defineNumbersToInsert(int numbers_to_insert_amount, int* h_number_presence,
 	{
 		if(h_number_presence[j] == 0)
 		{
-			printf("O, dodaję element!!! Liczba do wstawienia: %d\n", (j % NN) + 1);
+			// printf("O, dodaję element!!! Liczba do wstawienia: %d\n", (j % NN) + 1);
 			numbers_to_insert[i] = (j % NN) + 1;
 			i++;
 		}
@@ -299,7 +296,7 @@ int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presen
 	{
 		if(h_element_presence[j] == 0)
 		{
-			printf("Pozycja do wstawienia: %d\n", j % NN);
+			// printf("Pozycja do wstawienia: %d\n", j % NN);
 			positions_to_insert[i] = j % NN;
 			i++;
 		}
@@ -321,7 +318,7 @@ int countEmptyElemsInRow(int row, int* d_number_presence)
 	// int* h_element_presence = copySudokuToHost(d_element_presence);
 	// int* positions_to_insert = definePositionsToInsert(NN - filled_elements, h_element_presence, row);
 
-	printf("LICZBA ELEMENTÓW WYPEŁNIONYCH w rzędzie %d: %d\n", row + 1, filled_elements);
+	// printf("LICZBA ELEMENTÓW WYPEŁNIONYCH w rzędzie %d: %d\n", row + 1, filled_elements);
 
 	return NN - filled_elements;
 }
@@ -356,9 +353,9 @@ int** createPermutations(int empty_elems_in_row)
 		for(int j = 0; j < empty_elems_in_row; j++)
 		{
 			result[i][j] = permutations[j];
-			printf("%d | ", permutations[j]);
+			// printf("%d | ", permutations[j]);
 		}
-		printf("\n");
+		// printf("\n");
 		i++;
 	} while (std::next_permutation(permutations, permutations + empty_elems_in_row));
 
@@ -512,11 +509,11 @@ bool* checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* altern
 	cudaErrorHandling(cudaMemcpy(h_alternative_solutions_correctness, d_alternative_solutions_correctness, n_factorial * sizeof(bool), cudaMemcpyDeviceToHost));
 	for(int i = 0; i < n_factorial; i++)
 	{
-		printf("\nRozwiazanie %d: ", i);
-		if(h_alternative_solutions_correctness[i])
-			printf("ZLE\n");
-		else
-			printf("OK\n");
+		// printf("\nRozwiazanie %d: ", i);
+		// if(h_alternative_solutions_correctness[i])
+			// printf("ZLE\n");
+		// else
+			// printf("OK\n");
 	}
 
 	return h_alternative_solutions_correctness;
@@ -565,7 +562,7 @@ resolution* createAlternativeSolutions(int row, int* h_current_solution, int* d_
 		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
 		bool* alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
 		resolution* correct_solutions = chooseCorrectSolution(n_factorial, alternative_solutions, alternative_solutions_correctness);
-		printf("PRAWIDLOWYCH ROZWIAZAN: %d\n", correct_solutions -> n);
+		// printf("PRAWIDLOWYCH ROZWIAZAN: %d\n", correct_solutions -> n);
 		return correct_solutions;
 	} else
 	{
@@ -673,15 +670,15 @@ bool defineIfSudokuIsSolved(int* d_number_presence_summed)
 	cudaErrorHandling(cudaMemcpy(result, d_number_presence_summed, sizeof(int), cudaMemcpyDeviceToHost));
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	printf("---------- FINAL RESULT!!! ------\n");
-	printf("SUMA: %d\n", result[0]);
+	// printf("---------- FINAL RESULT!!! ------\n");
+	// printf("SUMA: %d\n", result[0]);
 	if(result[0] == 243)
 	{
-		printf("Sudoku jest rozwiązane!\n");
+		// printf("Sudoku jest rozwiązane!\n");
 		return true;
 	} else
 	{
-		printf("Sudoku nie jest rozwiązane! :( \n");
+		// printf("Sudoku nie jest rozwiązane! :( \n");
 		return false;
 	}
 }
@@ -718,21 +715,28 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 
 	if(row == 8)
 	{
+		resolution* correct_resolution = new resolution();
+		int correct_resolutions_count = 0;
+
 		for(int i = 0; i < alternative_solutions -> n; i++)
-		{
+			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
+				correct_resolutions_count += 1;
+
+		correct_resolution -> n = correct_resolutions_count;
+		correct_resolution -> resolutions = new int*[correct_resolutions_count];
+		int k = 0;
+		for(int i = 0; i < alternative_solutions -> n; i++)
 			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
 			{
-				printf("CALUTKIE SUDOKU NA POZYCJI %d POPRAWNE!!!\n", i);
-				displayHostArray("FINALNE ROZWIAZANIE", alternative_solutions->resolutions[i], NN, NN);
+				correct_resolution -> resolutions[k] = alternative_solutions->resolutions[i];
+				k++;
 			}
-		}
 		
 		// created_resolution -> n = 1;
 		// created_resolution -> resolutions = alternative_solutions;
-		return alternative_solutions;
+		return correct_resolution;
 	} else
 	{
-		printf("TUTAJ DOJDZIEMY? 9\n");
 		resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
 		for(int i = 0; i < alternative_solutions -> n; i ++)
 		{
@@ -773,7 +777,13 @@ cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
 	displayHostArray("RESOLUTION", empty_resolution, NN, NN);
 
 	final_resolution = createRowSolution(0, empty_resolution, h_sudoku_unsolved);
-	printf("Wynikow: %d\n", final_resolution -> n);
+	if (final_resolution -> n == 0)
+		printf("Brak prawidłowych rozwiązań zagadki.");
+	else
+		for(int i = 0; i < final_resolution -> n; i++)
+			displayHostArray("POPRAWNE ROZWIĄZANIE", final_resolution -> resolutions[i], NN, NN);
+
+	// printf("Wynikow: %d\n", final_resolution -> n);
 
 	return cudaSuccess;
 }
