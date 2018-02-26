@@ -467,6 +467,7 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 		// printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
 		printf("AKTUALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 80];
+		printf("FINALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 	}
 
 }
