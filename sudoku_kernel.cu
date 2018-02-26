@@ -746,7 +746,22 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 		}
 
 		printf("LICZBA ALTERNATYW W DRZEWIE: %d\n", alternatives_count);
-		return createRowSolution(row + 1, current_solution, quiz);;
+
+		resolution* final_resolution = new resolution();
+		final_resolution -> n = alternatives_count;
+		final_resolution -> resolutions = new int*[alternatives_count];
+		int k = 0;
+
+		for(int i = 0; i < alternative_solutions -> n; i++)
+		{
+			for(int j = 0; j < next_row_solutions[i]->n; j++)
+			{
+				final_resolution->resolutions[k] = next_row_solutions[i]->resolutions[j];
+				k++;
+			}
+		}
+		// return createRowSolution(row + 1, current_solution, quiz);;
+		return final_resolution;
 	}
 }
 
