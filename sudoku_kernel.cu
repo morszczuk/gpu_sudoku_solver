@@ -413,9 +413,9 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 		for (int i = 1; i <= 64 / 2; i *= 2)
 		{
 			if (threadIdx.x % (2 * i) == 0) {
-				printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+				// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
 				d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
-				printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+				// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
 			}
 			else
 			{
@@ -430,9 +430,9 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 		for(int i = 1; i <= 8; i *= 2)
 		{
 			if (id % (2 * i) == 0) {
-				printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+				// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
 				d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
-				printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+				// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
 			}
 			else
 			{
@@ -444,28 +444,11 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 
 	}
 
-	// for (int i = 1; i <= size / 2; i *= 2)
-	// {
-	// 	if (threadIdx.x % (2 * i) == 0 && idx < blockDim.x*(blockIdx.x + 1) - 1) {
-	// 		printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
-	// 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
-	// 		printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
-	// 	}
-	// 	else
-	// 	{
-	// 		// printf("[Thread %d] returning\n", idx);
-	// 		return;
-	// 	}
-	// 	__syncthreads();
-	// }
-
 	__syncthreads();
+	
 	if(threadIdx.x == 0)
 	{
-		printf("WYNIK przed dodaniem w komórce 0: %d\n", d_number_presence_in_col[idx]);
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
-		// printf("DODAŁEM! WYNIK: %d\n", d_number_presence_in_col[idx]);
-		printf("AKTUALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 80];
 		printf("FINALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 	}

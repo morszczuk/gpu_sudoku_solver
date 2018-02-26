@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	clock_t begin = clock();
 	
 	//SOLVING SUDOKU 
-	cudaErrorHandling(solveSudoku(h_sudoku_solved, h_without_two));
+	cudaErrorHandling(solveSudoku(h_sudoku_solved, h_without_four));
 
 	//ENDING TIME MEASURMENT
 	clock_t end = clock();
