@@ -507,6 +507,7 @@ bool* checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* altern
 	cudaErrorHandling(cudaDeviceSynchronize());
 
 	cudaErrorHandling(cudaMemcpy(h_alternative_solutions_correctness, d_alternative_solutions_correctness, n_factorial * sizeof(bool), cudaMemcpyDeviceToHost));
+	cudaFree(d_alternative_solutions_correctness);
 	for(int i = 0; i < n_factorial; i++)
 	{
 		// printf("\nRozwiazanie %d: ", i);
