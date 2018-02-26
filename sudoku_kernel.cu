@@ -733,7 +733,20 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	} else
 	{
 		printf("TUTAJ DOJDZIEMY? 9\n");
-		return createRowSolution(row + 1, current_solution, quiz);
+		resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
+		for(int i = 0; i < alternative_solutions -> n; i ++)
+		{
+			next_row_solutions[i] = createRowSolution(row + 1, alternative_solutions -> resolutions[i], quiz);
+		}
+		
+		int alternatives_count = 0;
+		for(int i = 0; i < alternative_solutions -> n; i ++)
+		{
+			alternatives_count += next_row_solutions[i] -> n;
+		}
+
+		printf("LICZBA ALTERNATYW W DRZEWIE: %d", alternatives_count);
+		return createRowSolution(row + 1, current_solution, quiz);;
 	}
 }
 
