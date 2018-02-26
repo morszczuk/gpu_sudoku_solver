@@ -716,21 +716,17 @@ resolution* createRowSolution(int row, int* _current_solution, int* quiz)
 	if(row == 8)
 	{
 		resolution* correct_resolution = new resolution();
-		int correct_resolutions_count = 0;
-
-		for(int i = 0; i < alternative_solutions -> n; i++)
-			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
-				correct_resolutions_count += 1;
-
-		correct_resolution -> n = correct_resolutions_count;
-		correct_resolution -> resolutions = new int*[correct_resolutions_count];
 		int k = 0;
+		
+		correct_resolution -> resolutions = new int*[alternative_solutions -> n];
 		for(int i = 0; i < alternative_solutions -> n; i++)
 			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
 			{
 				correct_resolution -> resolutions[k] = alternative_solutions->resolutions[i];
 				k++;
 			}
+
+		correct_resolution -> n = k;
 		
 		// created_resolution -> n = 1;
 		// created_resolution -> resolutions = alternative_solutions;
