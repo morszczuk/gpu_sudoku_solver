@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-	char filename_unsolved[] = "quizzes/arr_2_unsolved.txt";
+	char filename_unsolved[] = "quizzes/arr_4_unsolved.txt";
   char filename_solved[] = "quizzes/arr_1_solved.txt";
   char filename_error[] = "quizzes/arr_1_with_error.txt";
 	char almost_solved[] = "quizzes/arr_1_almost_solved.txt";
