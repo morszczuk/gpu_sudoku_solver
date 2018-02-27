@@ -708,6 +708,24 @@ int* insertRowToSolution(int row, int* current_solution, int* quiz)
 	return solution_copy;
 }
 
+resolution* chooseFullyCorrectResolutions(resolution* alternative_solutions)
+{
+	resolution* correct_resolution = new resolution();
+	int k = 0;
+	
+	correct_resolution -> resolutions = new int*[alternative_solutions -> n];
+	for(int i = 0; i < alternative_solutions -> n; i++)
+		if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
+		{
+			correct_resolution -> resolutions[k] = alternative_solutions->resolutions[i];
+			k++;
+		}
+
+	correct_resolution -> n = k;
+
+	return correct_resolution;
+}
+
 resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 {
 	int* current_solution, *d_current_solution;
@@ -720,26 +738,10 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 	resolution* alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
 	
 	cudaFree(d_current_solution);
-	
-	if(row == 8)
-	{
-		resolution* correct_resolution = new resolution();
-		int k = 0;
-		
-		correct_resolution -> resolutions = new int*[alternative_solutions -> n];
-		for(int i = 0; i < alternative_solutions -> n; i++)
-			if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
-			{
-				correct_resolution -> resolutions[k] = alternative_solutions->resolutions[i];
-				k++;
-			}
 
-		correct_resolution -> n = k;
-		
-		// created_resolution -> n = 1;
-		// created_resolution -> resolutions = alternative_solutions;
-		return correct_resolution;
-	} else
+	if(row == 8)
+		return chooseFullyCorrectResolutions(alternative_solutions);
+	else
 	{
 		resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
 		for(int i = 0; i < alternative_solutions -> n; i ++)
