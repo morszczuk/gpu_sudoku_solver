@@ -15,16 +15,11 @@ int main(int argc, char* argv[])
 	//RETRIEVING SUDOKU QUIZ
 
 	h_sudoku_error = readSudokuArray(filename_error);
-    
-	h_sudoku_unsolved = readSudokuArray(filename_unsolved);
-  
+	h_sudoku_unsolved = readSudokuArray(filename_unsolved); 
   h_sudoku_solved = readSudokuArray(filename_solved);
 	h_sudoku_almost_solved = readSudokuArray(almost_solved);
 	h_without_two = readSudokuArray(without_two);
 	h_without_four = readSudokuArray(without_four);
-	
-  // printArray(h_sudoku_unsolved, SUD_SIZE, SUD_SIZE);
-	// printArray(h_sudoku_almost_solved, SUD_SIZE, SUD_SIZE);
 
 	//STARTING TIME MEASURMENT
 	clock_t begin = clock();
