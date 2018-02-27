@@ -737,6 +737,7 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 
 	if(solution_found)
 		{
+			printf("Oho! Rozwiązanie już znalezione, nic tu po mnie\n");
 			created_resolution -> n = 0;
 			return created_resolution;
 		}
