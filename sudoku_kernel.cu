@@ -732,6 +732,8 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 	int sum_empty_elems_in_row;
 	resolution* created_resolution = new resolution();
 
+	printf("Aktualnie rozpatrywany rząd: %d", row+1);
+
 	current_solution = insertRowToSolution(row, previous_solution, quiz);
 	d_current_solution = copySudokuToDevice(current_solution);
 
