@@ -754,7 +754,7 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 	if(row == 8)
 		return chooseFullyCorrectResolutions(alternative_solutions);
 	else
-	{
+	{		
 		resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
 		for(int i = 0; i < alternative_solutions -> n; i ++)
 		{
@@ -767,7 +767,6 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 			alternatives_count += next_row_solutions[i] -> n;
 		}
 
-		// printf("LICZBA ALTERNATYW W DRZEWIE: %d\n", alternatives_count);
 
 		resolution* final_resolution = new resolution();
 		final_resolution -> n = alternatives_count;

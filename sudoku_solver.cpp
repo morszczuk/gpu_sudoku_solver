@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-	char filename_unsolved[] = "quizzes/arr_5_unsolved.txt";
+	char filename_unsolved[] = "quizzes/arr_6_unsolved.txt";
   char filename_solved[] = "quizzes/arr_1_solved.txt";
   char filename_error[] = "quizzes/arr_1_with_error.txt";
 	char almost_solved[] = "quizzes/arr_1_almost_solved.txt";
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	clock_t begin = clock();
 	
 	//SOLVING SUDOKU 
-	cudaErrorHandling(solveSudoku(h_sudoku_solved, h_without_four));
+	cudaErrorHandling(solveSudoku(h_sudoku_solved, h_sudoku_unsolved));
 
 	//ENDING TIME MEASURMENT
 	clock_t end = clock();
