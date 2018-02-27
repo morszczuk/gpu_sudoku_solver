@@ -718,12 +718,9 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 	d_current_solution = copySudokuToDevice(current_solution);
 
 	resolution* alternative_solutions = createAlternativeSolutions(row, current_solution, d_current_solution);
-	// bool** alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(alternative_solutions);
-	current_solution = alternative_solutions->resolutions[0];
-	// sum_empty_elems_in_row = countEmptyElemsInRow(row, d_current_solution);
-
-	// createPermutations(sum_empty_elems_in_row);
+	
 	cudaFree(d_current_solution);
+	
 	if(row == 8)
 	{
 		resolution* correct_resolution = new resolution();
