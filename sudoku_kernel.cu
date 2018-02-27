@@ -1,5 +1,7 @@
 #include "sudoku_kernel.h"
 
+bool solution_found = false;
+
 void cudaErrorHandling(cudaError_t cudaStatus) {
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "Error on CUDA %d: %s\n", cudaStatus, cudaGetErrorString(cudaStatus));
@@ -717,6 +719,7 @@ resolution* chooseFullyCorrectResolutions(resolution* alternative_solutions)
 	for(int i = 0; i < alternative_solutions -> n; i++)
 		if(checkIfSudokuIsSolved(alternative_solutions->resolutions[i]))
 		{
+			solution_found = true;
 			correct_resolution -> resolutions[k] = alternative_solutions->resolutions[i];
 			k++;
 		}
@@ -731,6 +734,12 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 	int* current_solution, *d_current_solution;
 	int sum_empty_elems_in_row;
 	resolution* created_resolution = new resolution();
+
+	if(solution_found)
+		{
+			created_resolution -> n = 0;
+			return created_resolution;
+		}
 
 	printf("Aktualnie rozpatrywany rząd: %d\n", row + 1);
 
