@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	bool showProgress = true;
 	
 	int *h_sudoku_to_solve, *h_sudoku_solved, *h_sudoku_unsolved, *h_sudoku_error, *h_sudoku_almost_solved, *h_without_two, *h_without_four;
-	int quizChoosing = argc;
+	int quizChoosing = argc - 1;
 
 	if(argc > 1 && strcmp(argv[1], "-s") == 0)
 	{
