@@ -576,7 +576,7 @@ bool* checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* altern
 	return h_alternative_solutions_correctness;
 }
 
-resolution* chooseCorrectSolution(int n_factorial, int** alternative_solutions, bool* alternative_solutions_correctness)
+resolution* chooseCorrectSolutions(int n_factorial, int** alternative_solutions, bool* alternative_solutions_correctness)
 {
 	resolution* only_correct_solutions = new resolution();
 	int number_of_correct = 0;
@@ -601,6 +601,33 @@ resolution* chooseCorrectSolution(int n_factorial, int** alternative_solutions, 
 	return only_correct_solutions;
 }
 
+resolution* prepareValidAlternatives(int num_of_elements_to_insert, int n_factorial, int row, int* h_number_presence, int* h_element_presence, int* h_current_solution)
+{
+	
+	int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
+	int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
+
+	int** rowPermutations = createPermutations(num_of_elements_to_insert);
+
+	int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
+	int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
+	bool* alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
+	
+	return chooseCorrectSolutions(n_factorial, alternative_solutions, alternative_solutions_correctness);	
+}
+
+resolution* resolutionArrayIntoStructure(int* solution)
+{
+	resolution* result_resolution = new resolution();
+	int **h_result = new int*[1];
+
+	h_result[0] = solution;
+	result_resolution -> n = 1;
+	result_resolution -> resolutions = h_result;
+
+	return result_resolution;
+}
+
 resolution* createAlternativeSolutions(int row, int* h_current_solution, int* d_current_solution)
 {
 	int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
@@ -608,32 +635,20 @@ resolution* createAlternativeSolutions(int row, int* h_current_solution, int* d_
 
 	int* h_number_presence = copySudokuToHost(d_number_presence);
 	int* h_element_presence = copySudokuToHost(d_element_presence);
+
 	int num_of_elements_to_insert = countEmptyElemsInRow(row, d_number_presence);
+	int n_factorial = factorial(num_of_elements_to_insert);
+
+	resolution* alternative_solution;
+
 	if(num_of_elements_to_insert > 0)
-	{
-		int n_factorial = factorial(num_of_elements_to_insert);
-		int* numbers_to_insert = defineNumbersToInsert(num_of_elements_to_insert, h_number_presence, row);
-		int* positions_to_insert = definePositionsToInsert(num_of_elements_to_insert, h_element_presence, row);
-		int** rowPermutations = createPermutations(num_of_elements_to_insert);
-		int** alternative_solutions = createAlternativeSolutions(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations, row);
-		int* alternative_solutions_one_array = combineSolutionsIntoOneArray(n_factorial, alternative_solutions);
-		bool* alternative_solutions_correctness = checkAlternativeSolutionsCorrectness(row, n_factorial, alternative_solutions_one_array);
-		resolution* correct_solutions = chooseCorrectSolution(n_factorial, alternative_solutions, alternative_solutions_correctness);
-		cudaFree(d_number_presence);
-		cudaFree(d_element_presence);
-		// printf("PRAWIDLOWYCH ROZWIAZAN: %d\n", correct_solutions -> n);
-		return correct_solutions;
-	} else
-	{
-		resolution* one_resolution = new resolution();
-		int **h_result = new int*[1];
-		h_result[0] = h_current_solution;
-		one_resolution -> n = 1;
-		one_resolution -> resolutions = h_result;
-		cudaFree(d_number_presence);
-		cudaFree(d_element_presence);
-		return one_resolution;
-	}
+		alternative_solution = prepareValidAlternatives(num_of_elements_to_insert, n_factorial, row, h_number_presence, h_element_presence, h_current_solution);
+	else
+		alternative_solution = resolutionArrayIntoStructure(h_current_solution);
+
+	cudaFree(d_number_presence);
+	cudaFree(d_element_presence);
+	return alternative_solution;
 }
 
 void sumNumberPresenceArray(int* d_number_presence)
