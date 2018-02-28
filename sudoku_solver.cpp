@@ -30,8 +30,8 @@ int main(int argc, char* argv[])
 		h_sudoku_to_solve = readSudokuArray(sudoku_nr1_unsolved);
 	else if(quizChoosing == 1)
 		h_sudoku_to_solve = readSudokuArray(sudoku_nr2_unsolved);
-	else if(quizChoosing == 2)
-		h_sudoku_to_solve = readSudokuArray(sudoku_nr2_unsolved_less);
+	// else if(quizChoosing == 2)
+	// 	h_sudoku_to_solve = readSudokuArray(sudoku_nr2_unsolved_less);
 
 
 	
