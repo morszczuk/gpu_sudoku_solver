@@ -796,11 +796,12 @@ resolution* createRowSolutionRecursive(int row, int* previous_solution, int* qui
 void displayResult(resolution* final_resolution)
 {
 	const char text_no_solutions[] = "Brak prawidłowych rozwiązań zagadki.";
+	char text_correct_solution[] = "POPRAWNE ROZWIĄZANIE";
 	if (final_resolution -> n == 0)
 		printf(text_no_solutions);
 	else
 		for(int i = 0; i < final_resolution -> n; i++)
-			displayHostArray("POPRAWNE ROZWIĄZANIE", final_resolution -> resolutions[i], NN, NN);
+			displayHostArray(text_correct_solution, final_resolution -> resolutions[i], NN, NN);
 }
 
 cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved, bool showProgress)
