@@ -15,12 +15,9 @@ int main(int argc, char* argv[])
 	int *h_sudoku_solved, *h_sudoku_unsolved, *h_sudoku_error, *h_sudoku_almost_solved, *h_without_two, *h_without_four;
 	int a =5;
 
-	if(argc > 1 )
-		printf("argv[1]: %s\n", argv[1]);
-
 	if(argc > 1 && strcmp(argv[1], "-s") == 0)
 	{
-		printf("Będzie mode cichy!\n");
+		printf("Włączony tryb cichy!\n");
 		showProgress = false;
 	}
 	
