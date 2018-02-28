@@ -563,15 +563,9 @@ bool* checkAlternativeSolutionsCorrectness(int row, int n_factorial, int* altern
 	cudaErrorHandling(cudaDeviceSynchronize());
 
 	cudaErrorHandling(cudaMemcpy(h_alternative_solutions_correctness, d_alternative_solutions_correctness, n_factorial * sizeof(bool), cudaMemcpyDeviceToHost));
+	
 	cudaFree(d_alternative_solutions_correctness);
-	for(int i = 0; i < n_factorial; i++)
-	{
-		// printf("\nRozwiazanie %d: ", i);
-		// if(h_alternative_solutions_correctness[i])
-			// printf("ZLE\n");
-		// else
-			// printf("OK\n");
-	}
+	cudaFree(d_alternative_solutions_one_array);
 
 	return h_alternative_solutions_correctness;
 }
