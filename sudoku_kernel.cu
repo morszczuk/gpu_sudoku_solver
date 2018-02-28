@@ -140,7 +140,6 @@ __global__ void __fillElementPresenceInRowsArray(int* d_sudoku, int* d_number_pr
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
 	// int index_1, index_2, index_3;
-	int k = SUD_SIZE*SUD_SIZE;
 
 	number_presence[idx * SUD_SIZE + idy] = 0;
 	// number_presence[k + idx * SUD_SIZE + idy] = 0;
@@ -177,7 +176,6 @@ __global__ void __fillNumberPresenceInRowsArray(int* d_sudoku, int* d_number_pre
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
 	// int index_1, index_2, index_3;
-	int k = SUD_SIZE*SUD_SIZE;
 
 	number_presence[idx * SUD_SIZE + idy] = 0;
 	// number_presence[k + idx * SUD_SIZE + idy] = 0;
@@ -764,7 +762,7 @@ resolution* combineResolutionsFromNextRows(resolution* alternative_solutions, in
 			k++;
 		}
 	}
-	// return createRowSolution(row + 1, current_solution, quiz);;
+	
 	return final_resolution;
 }
 
