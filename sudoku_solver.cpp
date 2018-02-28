@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	if(argc > 1 )
 		printf("argv[1]: %s\n", argv[1]);
 
-	if(argc > 1 && argv[1] == "-s")
+	if(argc > 1 && strcmp(argv[1], "-s") == 0)
 	{
 		printf("Będzie mode cichy!\n");
 		showProgress = false;
