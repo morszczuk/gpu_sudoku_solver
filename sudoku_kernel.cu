@@ -768,12 +768,11 @@ resolution* combineResolutionsFromNextRows(resolution* alternative_solutions, in
 resolution* createRowSolutionRecursive(int row, int* previous_solution, int* quiz, bool showProgress)
 {
 	int* current_solution, *d_current_solution;
-	int sum_empty_elems_in_row;
-	resolution* created_resolution = new resolution();
+	
 
 	if(solution_found)
 		{
-			printf("Oho! Rozwiązanie już znalezione, nic tu po mnie\n");
+			resolution* created_resolution = new resolution();	
 			created_resolution -> n = 0;
 			return created_resolution;
 		}
