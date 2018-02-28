@@ -263,7 +263,6 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 	// int row = threadIdx.x % NN;
 	int col = threadIdx.x - ((threadIdx.x / NN)*NN);
-	int rowStart = blockDim.x*blockIdx.x + row*NN;
 	int blockStart = blockDim.x*blockIdx.x;
 
 	// printf("Moje IDX: %d", idx);
