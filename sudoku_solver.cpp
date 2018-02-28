@@ -9,12 +9,15 @@ int main(int argc, char* argv[])
 	char without_two[] = "quizzes/arr_1_without_two.txt";
 	char without_four[] = "quizzes/arr_1_without_four.txt";
 
-	char silent[] = "--silent";
+	char silent[] = "-s";
 	bool showProgress = true;
 	
 	int *h_sudoku_solved, *h_sudoku_unsolved, *h_sudoku_error, *h_sudoku_almost_solved, *h_without_two, *h_without_four;
 	int a =5;
 
+	if(argc > 1 )
+		printf("argv[1]: %s", argv[1]);
+		
 	if(argc > 1 && argv[1] == silent)
 	{
 		printf("Będzie mode cichy!\n");
