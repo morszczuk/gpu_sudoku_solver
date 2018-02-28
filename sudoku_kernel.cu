@@ -218,11 +218,8 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_solutions_one_array, bool* d_alternative_solutions_correctness, int* d_number_presence_in_col, int row)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
-	// int row = threadIdx.x % NN;
 	int col = threadIdx.x - ((threadIdx.x / NN)*NN);
 	int blockStart = blockDim.x*blockIdx.x;
-
-	// printf("Moje IDX: %d", idx);
 
 	d_number_presence_in_col[idx] = 0;
 
@@ -231,14 +228,8 @@ __global__ void __checkAlternativeSolutionsCorrectness(int* d_alternative_soluti
 
 	__syncthreads();
 
-	// printf("IDX: %d | WARTOSC: %d | COL: %d | INDEKS DO WSTAIWENIA: %d\n", idx, d_alternative_solutions_one_array[idx], col, blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1);
 	if(d_alternative_solutions_one_array[idx] > 0)
-	{
-		// printf("AKTUALNA WARTOSC: %d\n", d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1]);
-		d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1] += 1; //informs about number data[idx][idy] - 1 presence in column idy
-	}
-	//number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
-	//d_number_presence_in_row[rowStart + d_alternative_solutions_one_array[idx] - 1] += 1;
+		d_number_presence_in_col[blockStart + (col * NN) + d_alternative_solutions_one_array[idx] - 1] += 1; 
 
 	__syncthreads();
 
@@ -255,19 +246,13 @@ __global__ void __sumNumberPresenceArray(int* d_number_presence, int size)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
-	// printf("[IDX: %d]\n", idx);
-	__syncthreads();
-
 	for (int i = 1; i <= size / 2; i *= 2)
 	{
 		if (idx % (2 * i) == 0) {
-			// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence[idx]);
 			d_number_presence[idx] += d_number_presence[idx + i];
-			// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence[idx]);
 		}
 		else
 		{
-			// printf("[Thread %d] returning\n", idx);
 			return;
 		}
 		__syncthreads();
@@ -282,18 +267,11 @@ __global__ void __fillFullNumberPresenceArray(int* d_sudoku, int* d_number_prese
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
-	// int index_1, index_2, index_3;
 	int k = SUD_SIZE*SUD_SIZE;
 
 	number_presence[idx * SUD_SIZE + idy] = 0;
 	number_presence[k + idx * SUD_SIZE + idy] = 0;
 	number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
-
-	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
-
-	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 
 	__syncthreads();
 
@@ -325,8 +303,6 @@ int* fillNumberPresenceInRowsArray(int* d_sudoku)
 	__fillNumberPresenceInRowsArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_number_presence_in_rows);
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	//displayNumberPresenceArray(d_number_presence);
-
 	return d_number_presence_in_rows;
 }
 
@@ -342,7 +318,6 @@ int* fillElementPresenceInRowsArray(int* d_sudoku)
 	__fillElementPresenceInRowsArray <<<dimGrid, dimBlock, sharedMemorySize>>> (d_sudoku, d_element_presence_in_rows);
 	cudaErrorHandling(cudaDeviceSynchronize());
 
-	//displayNumberPresenceArray(d_number_presence);
 
 	return d_element_presence_in_rows;
 }
@@ -373,7 +348,6 @@ int* defineNumbersToInsert(int numbers_to_insert_amount, int* h_number_presence,
 	{
 		if(h_number_presence[j] == 0)
 		{
-			// printf("O, dodaję element!!! Liczba do wstawienia: %d\n", (j % NN) + 1);
 			numbers_to_insert[i] = (j % NN) + 1;
 			i++;
 		}
@@ -395,7 +369,6 @@ int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presen
 	{
 		if(h_element_presence[j] == 0)
 		{
-			// printf("Pozycja do wstawienia: %d\n", j % NN);
 			positions_to_insert[i] = j % NN;
 			i++;
 		}
@@ -407,17 +380,7 @@ int* definePositionsToInsert(int numbers_to_insert_amount, int* h_element_presen
 
 int countEmptyElemsInRow(int row, int* d_number_presence)
 {
-	// int* d_number_presence = fillNumberPresenceInRowsArray(d_current_solution);
-	// int* h_number_presence = copySudokuToHost(d_number_presence);
 	int filled_elements = sumNumberPresenceInRow(d_number_presence, row);
-
-	// int* numbersToInsert = defineNumbersToInsert(NN - filled_elements, h_number_presence, row);
-
-	// int* d_element_presence = fillElementPresenceInRowsArray(d_current_solution);
-	// int* h_element_presence = copySudokuToHost(d_element_presence);
-	// int* positions_to_insert = definePositionsToInsert(NN - filled_elements, h_element_presence, row);
-
-	// printf("LICZBA ELEMENTÓW WYPEŁNIONYCH w rzędzie %d: %d\n", row + 1, filled_elements);
 
 	return NN - filled_elements;
 }
@@ -444,7 +407,6 @@ int** createPermutations(int empty_elems_in_row)
 		permutations[i] = i;
 	}
 
-	// printf("PERMUTUJEMY\n");
 
 	int i = 0;
 	do
@@ -452,9 +414,7 @@ int** createPermutations(int empty_elems_in_row)
 		for(int j = 0; j < empty_elems_in_row; j++)
 		{
 			result[i][j] = permutations[j];
-			// printf("%d | ", permutations[j]);
 		}
-		// printf("\n");
 		i++;
 	} while (std::next_permutation(permutations, permutations + empty_elems_in_row));
 
@@ -464,12 +424,9 @@ int** createPermutations(int empty_elems_in_row)
 int* insertPossibleSolutionToRow(int* h_current_solution, int num_of_elements_to_insert, int* positions_to_insert, int* numbers_to_insert, int* permutation, int row)
 {
 	int* possibleSolution = duplicateSudoku(h_current_solution);
+	
 	for(int i = 0; i < num_of_elements_to_insert; i++)
-	{
 		possibleSolution[NN*row + positions_to_insert[i]] = numbers_to_insert[permutation[i]];
-	}
-	// printf("ALTERNATYWNE ROZWIAZANIE STWORZONE!!!!\n");
-	// displayHostArray("ALTERNATYWNE ROZWWIAZANIE", possibleSolution, NN, NN);
 
 	return possibleSolution;
 }
@@ -480,9 +437,7 @@ int** createAlternativeSolutions(int* h_current_solution, int num_of_elements_to
 	int** alternative_solutions = new int*[n_factorial];
 
 	for(int i = 0; i < n_factorial; i++)
-	{
 		alternative_solutions[i] = insertPossibleSolutionToRow(h_current_solution, num_of_elements_to_insert, positions_to_insert, numbers_to_insert, rowPermutations[i], row);
-	}
 
 	return alternative_solutions;
 }
