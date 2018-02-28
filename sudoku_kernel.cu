@@ -795,8 +795,9 @@ resolution* createRowSolutionRecursive(int row, int* previous_solution, int* qui
 
 void displayResult(resolution* final_resolution)
 {
+	const char text_no_solutions[] = "Brak prawidłowych rozwiązań zagadki.";
 	if (final_resolution -> n == 0)
-		printf("Brak prawidłowych rozwiązań zagadki.");
+		printf(text_no_solutions);
 	else
 		for(int i = 0; i < final_resolution -> n; i++)
 			displayHostArray("POPRAWNE ROZWIĄZANIE", final_resolution -> resolutions[i], NN, NN);
