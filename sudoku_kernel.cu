@@ -20,7 +20,7 @@ int* newArrayWithZero(int N, int M)
 
 void displayHostArray(char* title, int* array, int N, int M)
 {
-  printf("---------%s-----------\n", title);
+  printf("\n---------%s-----------\n", title);
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < M; j++)
@@ -139,34 +139,19 @@ __global__ void __fillElementPresenceInRowsArray(int* d_sudoku, int* d_number_pr
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
-	// int index_1, index_2, index_3;
 
 	number_presence[idx * SUD_SIZE + idy] = 0;
-	// number_presence[k + idx * SUD_SIZE + idy] = 0;
-	// number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
-
-	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
-
-	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 
 	__syncthreads();
 
 	if (d_sudoku[idx * NN + idy])
-	{
-		number_presence[idx * NN + idy] = 1; //informs about number data[idx][idy] - 1 presence in row idx
-		// number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
-		// number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
-	}
+		number_presence[idx * NN + idy] = 1;
 
 	__syncthreads();
 
 	d_number_presence_in_rows[idx * NN + idy] = number_presence[idx * NN + idy];
-	// d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
-	// d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
 	
-	__syncthreads();
+	// __syncthreads();
 }
 
 
@@ -175,33 +160,18 @@ __global__ void __fillNumberPresenceInRowsArray(int* d_sudoku, int* d_number_pre
 	extern __shared__ int number_presence[];
 	int idx = blockDim.y*blockIdx.y + threadIdx.y;
 	int idy = blockDim.x*blockIdx.x + threadIdx.x;
-	// int index_1, index_2, index_3;
 
 	number_presence[idx * SUD_SIZE + idy] = 0;
-	// number_presence[k + idx * SUD_SIZE + idy] = 0;
-	// number_presence[(2*k) + (idx * SUD_SIZE + idy)] = 0;
-
-	// index_1 = idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	// index_2 = k + idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1;
-	// index_3 = (2 * k) + ((idx / 3) * 27) + ((idy / 3) * SUD_SIZE) + d_sudoku[idx*SUD_SIZE + idy] - 1;
-
-	// printf("[idx: %d, idy: %d | val: %d | %d, %d, %d]\n", idx, idy, d_sudoku[idx*SUD_SIZE + idy], index_1, index_2 - k , index_3 - (2*k));
 
 	__syncthreads();
 
 	if (d_sudoku[idx*SUD_SIZE + idy])
-	{
 		number_presence[idx * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs about number data[idx][idy] - 1 presence in row idx
-		// number_presence[k + (idy * SUD_SIZE + d_sudoku[idx*SUD_SIZE + idy] - 1)] = 1; //informs about number data[idx][idy] - 1 presence in column idy
-		// number_presence[(2 * k) + ((idx / 3) * 27) + ((idy / 3) * 9) + d_sudoku[idx*SUD_SIZE + idy] - 1] = 1; //informs, that number which is in data[idx][idy] - 1 is present in proper 'quarter'
-	}
 
 	__syncthreads();
 
 	d_number_presence_in_rows[idx * SUD_SIZE + idy] = number_presence[idx * 9 + idy];
-	// d_number_presence[k + idx * SUD_SIZE + idy] = number_presence[k + idx * 9 + idy];
-	// d_number_presence[(2 * k) + (idx * SUD_SIZE + idy)] = number_presence[(2 * k) + (idx * 9 + idy)];
-	
+
 	__syncthreads();
 }
 
@@ -209,22 +179,15 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 {
 	int idx = blockDim.x*blockIdx.x + threadIdx.x;
 
-	// printf("[IDX: %d]\n", idx);
-	__syncthreads();
 	if(threadIdx.x < 64)
 	{
 		for (int i = 1; i <= 64 / 2; i *= 2)
 		{
-			if (threadIdx.x % (2 * i) == 0) {
-				// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+			if (threadIdx.x % (2 * i) == 0)
 				d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
-				// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
-			}
 			else
-			{
-				// printf("[Thread %d] returning\n", idx);
 				return;
-			}
+
 			__syncthreads();
 		}
 	} else if(threadIdx.x < 80)
@@ -232,16 +195,11 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 		int id = threadIdx.x - 64;
 		for(int i = 1; i <= 8; i *= 2)
 		{
-			if (id % (2 * i) == 0) {
-				// printf("BEFORE [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
+			if (id % (2 * i) == 0)
 				d_number_presence_in_col[idx] += d_number_presence_in_col[idx + i];
-				// printf("AFTER [Thread %d]: %d\n", idx, d_number_presence_in_col[idx]);
-			}
 			else
-			{
-				// printf("[Thread %d] returning\n", idx);
 				return;
-			}
+
 			__syncthreads();
 		}
 
@@ -253,7 +211,6 @@ __device__ void __sumNumberPresence(int* d_number_presence_in_col, int size)
 	{
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 64];
 		d_number_presence_in_col[idx] += d_number_presence_in_col[idx + 80];
-		// printf("FINALNY WYNIK w komórce 0: %d\n", d_number_presence_in_col[idx]);
 	}
 
 }
@@ -795,7 +752,7 @@ resolution* createRowSolutionRecursive(int row, int* previous_solution, int* qui
 
 void displayResult(resolution* final_resolution)
 {
-	const char text_no_solutions[] = "Brak prawidłowych rozwiązań zagadki.";
+	const char text_no_solutions[] = "\nBrak prawidłowych rozwiązań zagadki.";
 	char text_correct_solution[] = "POPRAWNE ROZWIĄZANIE";
 	if (final_resolution -> n == 0)
 		printf(text_no_solutions);
