@@ -807,8 +807,9 @@ void displayResult(resolution* final_resolution)
 cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved, bool showProgress)
 {
   int* empty_resolution = newArrayWithZero(NN, NN);
+	char text_sudoku_quiz[] = "SUDOKU QUIZ";
 
-  displayHostArray("SUDOKU QUIZ", h_sudoku_unsolved, NN, NN);
+  displayHostArray(text_sudoku_quiz, h_sudoku_unsolved, NN, NN);
 
 	resolution* final_resolution = createRowSolutionRecursive(0, empty_resolution, h_sudoku_unsolved, showProgress);
 
