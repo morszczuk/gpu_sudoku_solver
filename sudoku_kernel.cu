@@ -738,12 +738,12 @@ resolution* chooseFullyCorrectResolutions(resolution* alternative_solutions)
 	return correct_resolution;
 }
 
-resolution* combineResolutionsFromNextRows(resolution* alternative_solutions, int* quiz, int row)
+resolution* combineResolutionsFromNextRows(resolution* alternative_solutions, int* quiz, int row, bool showProgress)
 {
 	resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
 	
 	for(int i = 0; i < alternative_solutions -> n; i ++)
-		next_row_solutions[i] = createRowSolutionRecursive(row + 1, alternative_solutions -> resolutions[i], quiz);
+		next_row_solutions[i] = createRowSolutionRecursive(row + 1, alternative_solutions -> resolutions[i], quiz, showProgress);
 	
 	int alternatives_count = 0;
 
@@ -768,7 +768,7 @@ resolution* combineResolutionsFromNextRows(resolution* alternative_solutions, in
 	return final_resolution;
 }
 
-resolution* createRowSolutionRecursive(int row, int* previous_solution, int* quiz)
+resolution* createRowSolutionRecursive(int row, int* previous_solution, int* quiz, bool showProgress)
 {
 	int* current_solution, *d_current_solution;
 	int sum_empty_elems_in_row;
@@ -781,7 +781,8 @@ resolution* createRowSolutionRecursive(int row, int* previous_solution, int* qui
 			return created_resolution;
 		}
 
-	printf("%d", row + 1);
+	if(showProgress)
+		printf("%d", row + 1);
 
 	current_solution = insertRowToSolution(row, previous_solution, quiz);
 	d_current_solution = copySudokuToDevice(current_solution);
@@ -793,7 +794,7 @@ resolution* createRowSolutionRecursive(int row, int* previous_solution, int* qui
 	if(row == 8)
 		return chooseFullyCorrectResolutions(alternative_solutions);
 	else
-		return combineResolutionsFromNextRows(alternative_solutions, quiz, row);
+		return combineResolutionsFromNextRows(alternative_solutions, quiz, row, showProgress);
 }
 
 void displayResult(resolution* final_resolution)
@@ -805,13 +806,13 @@ void displayResult(resolution* final_resolution)
 			displayHostArray("POPRAWNE ROZWIĄZANIE", final_resolution -> resolutions[i], NN, NN);
 }
 
-cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
+cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved, bool showProgress)
 {
   int* empty_resolution = newArrayWithZero(NN, NN);
 
   displayHostArray("SUDOKU QUIZ", h_sudoku_unsolved, NN, NN);
 
-	resolution* final_resolution = createRowSolutionRecursive(0, empty_resolution, h_sudoku_unsolved);
+	resolution* final_resolution = createRowSolutionRecursive(0, empty_resolution, h_sudoku_unsolved, showProgress);
 
 	displayResult(final_resolution);
 

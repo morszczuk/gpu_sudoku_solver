@@ -11,5 +11,5 @@ struct resolution {
 
 void displayHostArray(char* title, int* array, int N, int M);
 void cudaErrorHandling(cudaError_t cudaStatus);
-resolution* createRowSolutionRecursive(int row, int* previous_solution, int* quiz);
-cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved);
+resolution* createRowSolutionRecursive(int row, int* previous_solution, int* quiz, bool showProgress);
+cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved, bool showProgress);
