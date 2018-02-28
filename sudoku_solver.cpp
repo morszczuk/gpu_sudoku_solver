@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	char sudoku_[] = "quizzes/arr_1_without_four.txt";
 	char sudoku_nr1_unsolved[] = "quizzes/arr_1_to_solve.txt";
 	char sudoku_nr2_unsolved[] = "quizzes/arr_6_unsolved.txt";
-	char sudoku_nr2_unsolved_less[] = "quizzes/arr_6_unsolved.txt";
+	char sudoku_nr2_unsolved_less[] = "quizzes/arr_6_unsolved_less.txt";
 
 	char silent[] = "-s";
 	bool showProgress = true;
