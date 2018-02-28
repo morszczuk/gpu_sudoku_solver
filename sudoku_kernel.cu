@@ -729,7 +729,37 @@ resolution* chooseFullyCorrectResolutions(resolution* alternative_solutions)
 	return correct_resolution;
 }
 
-resolution* createRowSolution(int row, int* previous_solution, int* quiz)
+resolution* combineResolutionsFromNextRows(resolution* alternative_solutions, int* quiz, int row)
+{
+	resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
+	
+	for(int i = 0; i < alternative_solutions -> n; i ++)
+		next_row_solutions[i] = createRowSolutionRecursive(row + 1, alternative_solutions -> resolutions[i], quiz);
+	
+	int alternatives_count = 0;
+
+	for(int i = 0; i < alternative_solutions -> n; i ++)
+		alternatives_count += next_row_solutions[i] -> n;
+
+
+	resolution* final_resolution = new resolution();
+	final_resolution -> n = alternatives_count;
+	final_resolution -> resolutions = new int*[alternatives_count];
+	int k = 0;
+
+	for(int i = 0; i < alternative_solutions -> n; i++)
+	{
+		for(int j = 0; j < next_row_solutions[i]->n; j++)
+		{
+			final_resolution->resolutions[k] = next_row_solutions[i]->resolutions[j];
+			k++;
+		}
+	}
+	// return createRowSolution(row + 1, current_solution, quiz);;
+	return final_resolution;
+}
+
+resolution* createRowSolutionRecursive(int row, int* previous_solution, int* quiz)
 {
 	int* current_solution, *d_current_solution;
 	int sum_empty_elems_in_row;
@@ -754,36 +784,7 @@ resolution* createRowSolution(int row, int* previous_solution, int* quiz)
 	if(row == 8)
 		return chooseFullyCorrectResolutions(alternative_solutions);
 	else
-	{		
-		resolution** next_row_solutions = new resolution*[alternative_solutions -> n];
-		for(int i = 0; i < alternative_solutions -> n; i ++)
-		{
-			next_row_solutions[i] = createRowSolution(row + 1, alternative_solutions -> resolutions[i], quiz);
-		}
-		
-		int alternatives_count = 0;
-		for(int i = 0; i < alternative_solutions -> n; i ++)
-		{
-			alternatives_count += next_row_solutions[i] -> n;
-		}
-
-
-		resolution* final_resolution = new resolution();
-		final_resolution -> n = alternatives_count;
-		final_resolution -> resolutions = new int*[alternatives_count];
-		int k = 0;
-
-		for(int i = 0; i < alternative_solutions -> n; i++)
-		{
-			for(int j = 0; j < next_row_solutions[i]->n; j++)
-			{
-				final_resolution->resolutions[k] = next_row_solutions[i]->resolutions[j];
-				k++;
-			}
-		}
-		// return createRowSolution(row + 1, current_solution, quiz);;
-		return final_resolution;
-	}
+		return combineResolutionsFromNextRows(alternative_solutions, quiz, row);
 }
 
 void displayResult(resolution* final_resolution)
@@ -801,7 +802,7 @@ cudaError_t solveSudoku(int* h_sudoku_solved, int* h_sudoku_unsolved)
 
   displayHostArray("SUDOKU QUIZ", h_sudoku_unsolved, NN, NN);
 
-	resolution* final_resolution = createRowSolution(0, empty_resolution, h_sudoku_unsolved);
+	resolution* final_resolution = createRowSolutionRecursive(0, empty_resolution, h_sudoku_unsolved);
 
 	displayResult(final_resolution);
 
